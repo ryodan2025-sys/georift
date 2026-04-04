@@ -135,7 +135,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .sk-node{border:1px solid var(--br);background:var(--bg3);padding:9px 7px;border-radius:4px;cursor:pointer;transition:all .15s;}
 .sk-node.unl{border-color:var(--c5);}
 .sk-node.mxd{border-color:var(--c4);}
-.sk-node.lck{opacity:.3;pointer-events:none;}
+
 .sk-ico{font-size:1.4rem;text-align:center;margin-bottom:4px;}
 .sk-nm{font-size:.55rem;text-align:center;color:var(--tx);margin-bottom:2px;}
 .sk-lv{font-size:.52rem;color:var(--tx2);text-align:center;}
@@ -182,6 +182,10 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 #clearBanner.normal{background:rgba(6,214,160,.1);border:1px solid var(--c5);color:var(--c5);}
 #clearBanner.boss-clear{background:rgba(255,190,11,.1);border:1px solid var(--c4);color:var(--c4);font-size:.95rem;}
 
+/* NAME INPUT */
+#playerNameInput::placeholder{color:rgba(0,245,255,.3);}
+#playerNameInput:focus{border-color:var(--c4);box-shadow:0 0 14px rgba(255,190,11,.3);}
+
 /* SCREEN FLASH */
 #screenFlash{position:fixed;inset:0;pointer-events:none;z-index:65;opacity:0;transition:opacity .08s;}
 #screenFlash.red{background:rgba(255,0,0,.28);}
@@ -209,12 +213,16 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="logo">GEORIFT</div>
     <div class="sub">◈ GEOMETRİK ROGUELIKE ◈</div>
     <br>
-    <button class="btn pri" onclick="startGame()">▶ OYUNA BAŞLA</button>
+    <button class="btn pri" onclick="requestName()">▶ OYUNA BAŞLA</button>
+    <button class="btn pur" onclick="showCardsPreview()">🃏 YETENEKLERİ GÖSTER</button>
     <button class="btn" onclick="showTitleToplist()">🏆 TOPLIST</button>
-    <button class="btn" onclick="showHelp()">? YARDIM</button>
-    <div style="margin-top:8px;font-size:.55rem;color:var(--tx2);text-align:center;line-height:2;">
-      OTOMATİK ATEŞ · OTOMATİK BECERİ<br>
-      BOSS SAVAŞLARI · KART SİSTEMİ
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="showHelp()" style="flex:1;">? YARDIM</button>
+      <button class="btn" onclick="showSettings()" style="flex:1;">⚙ AYARLAR</button>
+    </div>
+    <div style="margin-top:6px;font-size:.52rem;color:var(--tx2);text-align:center;line-height:2;">
+      OTOMATİK ATEŞ · KART SİSTEMİ<br>
+      BOSS SAVAŞLARI · TOPLIST
     </div>
   </div>
 </div>
@@ -248,6 +256,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     </div>
     <div class="hud-right">
       <div class="hud-skill-btn" onclick="toggleSkillModal()">◈</div>
+      <div class="hud-skill-btn" id="pauseBtn" onclick="togglePause()">⏸</div>
     </div>
   </div>
 
@@ -292,6 +301,72 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
   <div class="lv-title">⬆ SEVİYE ATLADI!</div>
   <div class="lv-sub" id="lvNum">SEVİYE 2</div>
   <div class="lv-cards" id="lvCards"></div>
+</div>
+
+<!-- NAME INPUT MODAL -->
+<div id="nameModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:95;flex-direction:column;align-items:center;justify-content:center;gap:18px;">
+  <div style="font-size:1.4rem;letter-spacing:.4em;color:var(--c);animation:glow 2s infinite">◈ GEORIFT</div>
+  <div style="font-size:.7rem;color:var(--tx2);letter-spacing:.3em;">İSMİNİ GİR</div>
+  <input id="playerNameInput" type="text" maxlength="16" placeholder="Adın..."
+    style="background:rgba(0,245,255,.05);border:1px solid var(--c);color:var(--tx);font-family:'Courier New',monospace;font-size:1rem;padding:10px 16px;border-radius:3px;outline:none;text-align:center;width:220px;letter-spacing:.1em;"
+    oninput="this.value=this.value.toUpperCase()"
+  />
+  <button class="btn pri" onclick="confirmName()" style="min-width:180px;">▶ SAVAŞA GİR</button>
+  <div style="font-size:.52rem;color:var(--tx2);">Toplist'te bu isim görünecek</div>
+</div>
+
+<!-- CARDS PREVIEW MODAL -->
+<div id="cardsPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:85;flex-direction:column;overflow:hidden;">
+  <div style="padding:12px 14px;background:var(--bg2);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:.9rem;letter-spacing:.3em;color:var(--c);">🃏 KARTLAR & YETENEKLERİ</div>
+    <button class="m-close" onclick="closeCardsPreview()">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;">
+    <div style="font-size:.58rem;color:var(--tx2);letter-spacing:.1em;text-align:center;">Levelde kart seçiminde bunlar çıkabilir</div>
+    <div id="cardsPreviewList"></div>
+    <div style="margin-top:8px;font-size:.65rem;color:var(--c);letter-spacing:.2em;">◈ YETENEK AĞAÇLARI</div>
+    <div style="font-size:.55rem;color:var(--tx2);">SP ile ağaçlardaki yetenekleri aktive edersin. SP kartlardan gelir.</div>
+    <div id="treesPreviewList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px;"></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:85;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="font-size:1.1rem;letter-spacing:.4em;color:var(--c);">⚙ AYARLAR</div>
+  <div style="width:82%;max-width:300px;background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.75rem;color:var(--tx);">🔊 SES EFEKTLERİ</span>
+      <button id="sfxToggleBtn" class="btn" style="padding:6px 16px;font-size:.7rem;" onclick="settingsToggleSound()">AÇIK</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.75rem;color:var(--tx);">🎵 FON MÜZİĞİ</span>
+      <button id="musicToggleBtn" class="btn" style="padding:6px 16px;font-size:.7rem;" onclick="settingsToggleMusic()">AÇIK</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:.75rem;color:var(--tx);">👤 İSİM</span>
+      <span id="settingsNameDisplay" style="font-size:.75rem;color:var(--c);">-</span>
+    </div>
+    <div style="border-top:1px solid var(--br);padding-top:10px;">
+      <button class="btn red" style="width:100%;font-size:.65rem;" onclick="clearToplist()">🗑 TOPLIST'İ SİL</button>
+    </div>
+  </div>
+  <button class="btn" onclick="closeSettings()">✕ KAPAT</button>
+</div>
+
+<!-- PAUSE OVERLAY -->
+<div id="pauseOverlay" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.93);z-index:90;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px);">
+  <div style="font-size:1.8rem;letter-spacing:.5em;color:var(--c);animation:glow 1.5s infinite">⏸ DURAKLATILDI</div>
+  <div style="font-size:.6rem;color:var(--tx2);letter-spacing:.3em;">OYUN DURAKLADI</div>
+  <button class="btn pri" onclick="togglePause()">▶ DEVAM ET</button>
+  <button class="btn" onclick="toggleSkillModal()">◈ YETENEK AĞACI</button>
+  <button class="btn" onclick="showTitle()">⌂ ANA MENÜ</button>
+  <div id="pauseMusicInfo" style="font-size:.52rem;color:var(--tx2);letter-spacing:.1em;margin-top:6px;"></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-top:4px;">
+    <span style="font-size:.58rem;color:var(--tx2);">🔊 SES:</span>
+    <button class="btn" style="padding:6px 14px;font-size:.65rem;" onclick="toggleSound()">🔊 AÇIK</button>
+    <span style="font-size:.58rem;color:var(--tx2);">🎵 MÜZİK:</span>
+    <button class="btn" style="padding:6px 14px;font-size:.65rem;" onclick="toggleMusic()">🎵 AÇIK</button>
+  </div>
 </div>
 
 <!-- BOSS INTRO -->
@@ -345,51 +420,154 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 // ══════════════════════════════
 const AU = (function(){
   let ctx = null;
+  let masterGain = null;
+  let musicGain = null;
+  let sfxGain = null;
+  let musicNode = null;
+  let musicPlaying = false;
+  let soundOn = true;
+  let musicOn = true;
+  // Müzik notaları — ambient elektronik, telifsiz (Web Audio ile üretildi)
+  const MUSIC_NOTES = [110,138,165,110,138,165,220,165,138,110,82,110,138,110,82,110];
+  const MUSIC_BASS  = [55,55,55,55,69,69,69,69,82,82,82,82,55,55,55,55];
+  let _musicStep=0, _musicTimer=null;
+
   function init(){
     if(ctx) return;
     ctx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = ctx.createGain(); masterGain.gain.value = 1.0; masterGain.connect(ctx.destination);
+    sfxGain = ctx.createGain(); sfxGain.gain.value = 0.8; sfxGain.connect(masterGain);
+    musicGain = ctx.createGain(); musicGain.gain.value = 0.0; musicGain.connect(masterGain);
+    // Fade in müzik
+    musicGain.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 2.5);
+    startMusic();
   }
-  function tone(freq, type, vol, dur, delay=0){
-    if(!ctx) return;
+
+  function tone(freq, type, vol, dur, delay=0, dest=null){
+    if(!ctx||!soundOn) return;
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
+    const target = dest || sfxGain;
+    o.connect(g); g.connect(target);
     o.type = type || 'sine';
     o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-    o.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + delay + dur);
+    o.frequency.exponentialRampToValueAtTime(Math.max(freq*0.4,20), ctx.currentTime + delay + dur);
     g.gain.setValueAtTime(vol, ctx.currentTime + delay);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
     o.start(ctx.currentTime + delay);
-    o.stop(ctx.currentTime + delay + dur + 0.01);
+    o.stop(ctx.currentTime + delay + dur + 0.02);
   }
-  function noise(vol, dur){
-    if(!ctx) return;
+
+  function noise(vol, dur, freq=800){
+    if(!ctx||!soundOn) return;
     const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
     const d = buf.getChannelData(0);
     for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1);
     const src = ctx.createBufferSource();
     const g = ctx.createGain();
     const f = ctx.createBiquadFilter();
-    f.type = 'bandpass'; f.frequency.value = 800;
-    src.buffer = buf; src.connect(f); f.connect(g); g.connect(ctx.destination);
+    f.type = 'bandpass'; f.frequency.value = freq;
+    src.buffer = buf; src.connect(f); f.connect(g); g.connect(sfxGain);
     g.gain.setValueAtTime(vol, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    src.start(); src.stop(ctx.currentTime + dur + 0.01);
+    src.start(); src.stop(ctx.currentTime + dur + 0.02);
   }
+
+  function startMusic(){
+    if(!ctx) return;
+    _musicStep=0;
+    function playStep(){
+      if(!musicOn){_musicTimer=null;return;}
+      const n=MUSIC_NOTES[_musicStep%MUSIC_NOTES.length];
+      const b=MUSIC_BASS[_musicStep%MUSIC_BASS.length];
+      // Melodi
+      const oM=ctx.createOscillator(); const gM=ctx.createGain();
+      oM.connect(gM); gM.connect(musicGain);
+      oM.type='triangle'; oM.frequency.value=n;
+      gM.gain.setValueAtTime(0.001,ctx.currentTime);
+      gM.gain.linearRampToValueAtTime(0.5,ctx.currentTime+0.04);
+      gM.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.38);
+      oM.start(ctx.currentTime); oM.stop(ctx.currentTime+0.4);
+      // Bass
+      if(_musicStep%4===0){
+        const oB=ctx.createOscillator(); const gB=ctx.createGain();
+        oB.connect(gB); gB.connect(musicGain);
+        oB.type='sawtooth'; oB.frequency.value=b;
+        gB.gain.setValueAtTime(0.001,ctx.currentTime);
+        gB.gain.linearRampToValueAtTime(0.35,ctx.currentTime+0.02);
+        gB.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);
+        oB.start(ctx.currentTime); oB.stop(ctx.currentTime+0.6);
+      }
+      // Hi-hat hafif
+      if(_musicStep%2===0){
+        const hhBuf=ctx.createBuffer(1,ctx.sampleRate*.06,ctx.sampleRate);
+        const hd=hhBuf.getChannelData(0);
+        for(let i=0;i<hd.length;i++) hd[i]=(Math.random()*2-1);
+        const hhSrc=ctx.createBufferSource(); const hhG=ctx.createGain();
+        const hhF=ctx.createBiquadFilter(); hhF.type='highpass'; hhF.frequency.value=6000;
+        hhSrc.buffer=hhBuf; hhSrc.connect(hhF); hhF.connect(hhG); hhG.connect(musicGain);
+        hhG.gain.setValueAtTime(0.12,ctx.currentTime);
+        hhG.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);
+        hhSrc.start(); hhSrc.stop(ctx.currentTime+0.07);
+      }
+      _musicStep++;
+      _musicTimer=setTimeout(playStep, 400);
+    }
+    playStep();
+  }
+
+  function stopMusic(){
+    if(_musicTimer){clearTimeout(_musicTimer);_musicTimer=null;}
+    if(musicGain) musicGain.gain.setValueAtTime(0,ctx.currentTime);
+  }
+
+  function resumeMusic(){
+    if(!musicOn) return;
+    if(!ctx) return;
+    musicGain.gain.linearRampToValueAtTime(0.22, ctx.currentTime+1.0);
+    if(!_musicTimer) startMusic();
+  }
+
+  function pauseMusic(){
+    if(musicGain) musicGain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.5);
+    if(_musicTimer){clearTimeout(_musicTimer);_musicTimer=null;}
+  }
+
   return {
     init,
-    shoot(){ tone(880,  'square', 0.06, 0.07); },
-    hit(){   noise(0.08, 0.06); tone(200,'sawtooth',0.06,0.08); },
-    die(){   noise(0.18, 0.25); tone(80,'sawtooth',0.12,0.3); },
-    dash(){  tone(440,'sine',0.08,0.12); tone(660,'sine',0.05,0.1,0.06); },
-    skill1(){ tone(200,'sawtooth',0.1,0.2); tone(150,'sawtooth',0.08,0.15,0.1); },
-    skill2(){ tone(600,'sine',0.08,0.18); tone(800,'sine',0.05,0.12,0.08); },
-    skill3(){ tone(100,'sawtooth',0.12,0.3); tone(300,'square',0.07,0.2,0.05); },
-    levelup(){ [0,0.08,0.16,0.24].forEach((d,i)=>tone([440,554,659,880][i],'sine',0.1,0.18,d)); },
-    boss(){  [0,0.1,0.2].forEach((d,i)=>tone([80,60,40][i],'sawtooth',0.15,0.35,d)); },
-    bossdie(){ [0,0.1,0.2,0.3,0.4].forEach((d,i)=>tone([200,300,400,300,200][i],'sine',0.12,0.2,d)); noise(0.2,0.5); },
-    pickup(){ tone(660,'sine',0.07,0.1); tone(880,'sine',0.05,0.08,0.07); },
-    cardsel(){ tone(500,'sine',0.08,0.14); tone(700,'sine',0.06,0.1,0.08); },
+    startMusic, stopMusic, pauseMusic, resumeMusic,
+    get soundOn(){ return soundOn; },
+    get musicOn(){ return musicOn; },
+    toggleSound(){ soundOn=!soundOn; },
+    toggleMusic(){
+      musicOn=!musicOn;
+      if(musicOn) resumeMusic();
+      else pauseMusic();
+    },
+    shoot(){ tone(1200,'square',0.04,0.05); },
+    hit(){
+      // Temiz darbe sesi — gıcık değil
+      tone(180,'triangle',0.07,0.06);
+      noise(0.05,0.04,400);
+    },
+    die(){
+      // Ölme sesi — derin vurgu, daha az rahatsız edici
+      tone(120,'sine',0.10,0.18);
+      tone(80,'sine',0.08,0.25,0.08);
+      noise(0.06,0.15,200);
+    },
+    dash(){  tone(600,'sine',0.06,0.08); tone(900,'sine',0.04,0.07,0.05); },
+    skill1(){ tone(220,'sawtooth',0.08,0.18); tone(180,'sawtooth',0.06,0.14,0.1); },
+    skill2(){ tone(700,'sine',0.06,0.15); tone(1000,'sine',0.04,0.10,0.08); },
+    skill3(){ tone(120,'sine',0.10,0.25); tone(180,'triangle',0.07,0.18,0.06); },
+    levelup(){ [0,0.1,0.2,0.3].forEach((d,i)=>tone([330,415,495,660][i],'sine',0.09,0.18,d)); },
+    boss(){ [0,0.12,0.24].forEach((d,i)=>tone([60,50,40][i],'sawtooth',0.12,0.4,d)); },
+    bossdie(){
+      [0,0.12,0.24,0.36,0.48].forEach((d,i)=>tone([220,330,440,330,220][i],'sine',0.10,0.22,d));
+      noise(0.10,0.4,300);
+    },
+    pickup(){ tone(880,'sine',0.06,0.08); tone(1100,'sine',0.04,0.07,0.06); },
+    cardsel(){ [0,0.07,0.14].forEach((d,i)=>tone([440,550,660][i],'sine',0.07,0.12,d)); },
   };
 })();
 
@@ -418,6 +596,22 @@ const BOSS_DEFS = [
   {id:'inferno_king',name:'ATEŞ KRAL',icon:'👑',desc:'Cehennem alevlerinin efendisi.',phases:['Alev Halkası','Magma Fırtına','Güneş Patlaması'],hpMult:1.6,atkMult:1.5,col:'#ff6b35',pattern:'spin',special:'fire_ring',size:46},
   {id:'frost_queen',name:'BUZ KRALİÇE',icon:'❄️',desc:'Mutlak sıfırın hâkimi.',phases:['Buz Okları','Blizzard','Zaman Dondur'],hpMult:1.8,atkMult:1.6,col:'#00b4d8',pattern:'freeze_wave',special:'time_stop',size:44},
   {id:'chaos_god',name:'KAOS TANRISI',icon:'🌀',desc:'Tüm realitelerin yıkıcısı.',phases:['Kaos Dalgası','Gerçeklik Kırılması','Omega Formu'],hpMult:2.2,atkMult:2,col:'#f72585',pattern:'chaos',special:'omega_blast',size:52},
+];
+
+// ══════════════════════════════
+// ENEMY TYPES
+// ══════════════════════════════
+const ENEMY_TYPES = [
+  {id:0,name:'TRİGON',col:'#ff6b35',shape:'tri',speed:1.0,hpMult:1.0,atkMult:1.0,shoots:false,drop:'hp',desc:'Hızlı üçgen'},
+  {id:1,name:'KUBUS',col:'#7b2fff',shape:'sq',speed:0.85,hpMult:1.3,atkMult:1.1,shoots:false,drop:'mp',desc:'Dayanıklı kare'},
+  {id:2,name:'PENTAGOR',col:'#00f5ff',shape:'pent',speed:0.9,hpMult:1.1,atkMult:1.2,shoots:true,shootRate:70,desc:'Mermi atan'},
+  {id:3,name:'HEXOR',col:'#ffd60a',shape:'hex',speed:0.75,hpMult:1.5,atkMult:0.9,shoots:true,shootRate:55,desc:'Zırhıl altıgen'},
+  {id:4,name:'KAOSFORM',col:'#ff006e',shape:'star',speed:1.2,hpMult:0.8,atkMult:1.4,shoots:true,shootRate:45,desc:'Kaotik yıldız'},
+  {id:5,name:'OKTORON',col:'#06d6a0',shape:'oct',speed:0.65,hpMult:2.0,atkMult:0.8,shoots:true,shootRate:40,desc:'Yavaş zırhlı'},
+  {id:6,name:'VOIDSPAWN',col:'#6a0dad',shape:'tri',speed:1.4,hpMult:0.7,atkMult:1.3,shoots:false,drop:'none',desc:'Hızlı karanlık'},
+  {id:7,name:'KRYSTER',col:'#4cc9f0',shape:'hex',speed:0.8,hpMult:1.2,atkMult:1.0,shoots:true,shootRate:60,freeze:true,desc:'Dondurucu'},
+  {id:8,name:'PYRONIX',col:'#ff4d00',shape:'star',speed:1.0,hpMult:1.0,atkMult:1.3,shoots:true,shootRate:50,burn:true,desc:'Yakıcı mermi'},
+  {id:9,name:'SPECTRA',col:'#e040fb',shape:'oct',speed:1.1,hpMult:0.9,atkMult:1.1,shoots:true,shootRate:35,teleport:true,desc:'Teleport eder'},
 ];
 
 // ══════════════════════════════
@@ -558,14 +752,18 @@ function spawnWave(){
     }while(Math.hypot(ex-p.x,ey-p.y)<200&&tries<10);
     const isElite=Math.random()<.15;
     const tier=isElite?2:1;
-    const hp=(28+G.floor*11+G.wave*5)*tier;
-    // XP ve HP düşürüldü
+    // Daha yüksek katlarda daha zor tipler
+    const availTypes=ENEMY_TYPES.filter(t=>t.id<Math.min(3+G.floor*2,ENEMY_TYPES.length));
+    const eType=availTypes[Math.floor(Math.random()*availTypes.length)];
+    const hp=Math.floor((28+G.floor*11+G.wave*5)*tier*eType.hpMult);
     G.enemies.push({x:ex,y:ey,hp,maxHp:hp,
-      speed:(1.0+G.floor*.09)*(tier===2?.78:1),
-      atk:(5+G.floor*2.5)*tier,
-      type:Math.floor(Math.random()*6),tier,size:[11,16][tier-1],
-      vx:0,vy:0,shootCd:Math.random()*60,stunTime:0,burnTime:0,freezeTime:0,rot:0,
-      dropXp:(5+G.wave*1.5)*tier, // XP düşürüldü
+      speed:(1.0+G.floor*.09)*(tier===2?.78:1)*eType.speed,
+      atk:Math.floor((5+G.floor*2.5)*tier*eType.atkMult),
+      type:eType.id,etype:eType,tier,size:[11,16][tier-1],
+      vx:0,vy:0,shootCd:Math.random()*(eType.shootRate||60),
+      stunTime:0,burnTime:0,freezeTime:0,rot:0,
+      teleportCd:eType.teleport?(60+Math.random()*60):99999,
+      dropXp:(5+G.wave*1.5)*tier,
       isBoss:false});
   }
   G.waveCleared=false;
@@ -759,14 +957,12 @@ function renderTree(tree){
 }
 function renderNode(tid,idx,s){
   const key=`${tid}_${idx}`;const lv=G.skillLevels[key]||0;const mxd=lv>=s.m;
-  const lck=idx>0&&(G.skillLevels[`${tid}_${idx-1}`]||0)<1;
-  const cls=mxd?'mxd':lv>0?'unl':lck?'lck':'';
+  const cls=mxd?'mxd':lv>0?'unl':'';
   return `<div class="sk-node ${cls}" onclick="upgradeSkill('${tid}',${idx})"><div class="sk-ico">${s.i}</div><div class="sk-nm">${s.n}</div><div class="sk-lv">Lv <span>${lv}</span>/${s.m}</div><div class="sk-cost">${mxd?'✓ MAKS':'1 SP'}</div></div>`;
 }
 function upgradeSkill(tid,idx){
   const tree=[...MAIN_TREES,...SIDE_TREES].find(t=>t.id===tid);if(!tree)return;
   const s=tree.skills[idx];const key=`${tid}_${idx}`;const lv=G.skillLevels[key]||0;
-  if(idx>0&&(G.skillLevels[`${tid}_${idx-1}`]||0)<1){showMsg('Önceki yeteneği aç!');return;}
   if(lv>=s.m){showMsg('Maks seviye!');return;}if(G.sp<1){showMsg('SP yok!');return;}
   G.skillLevels[key]=lv+1;G.sp--;applySkillBonus(tid,idx,lv+1);renderTree(tree);
   document.getElementById('spVal').textContent=G.sp;
@@ -788,7 +984,14 @@ function applySkillBonus(tid,idx,lv){
 }
 function toggleSkillModal(){
   const m=document.getElementById('skillModal');
-  if(m.classList.toggle('open')){buildTabs();const tree=[...MAIN_TREES,...SIDE_TREES].find(t=>t.id===curTab)||MAIN_TREES[0];renderTree(tree);}
+  const wasOpen=m.classList.contains('open');
+  m.classList.toggle('open');
+  if(!wasOpen){buildTabs();const tree=[...MAIN_TREES,...SIDE_TREES].find(t=>t.id===curTab)||MAIN_TREES[0];renderTree(tree);}
+  // Skill modal açıkken oyun durur, kapanınca devam
+  if(G.running&&!G.gameOver){
+    G.paused=m.classList.contains('open');
+    if(!G.paused)G.lastTime=performance.now();
+  }
 }
 function openSkillMenuFromTitle(){showScreen('gameScreen');toggleSkillModal();}
 
@@ -799,14 +1002,140 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='';});
   const el=document.getElementById(id);el.classList.add('active');el.style.display='flex';
 }
-function showTitle(){G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);document.getElementById('skillModal').classList.remove('open');document.getElementById('bossIntro').classList.remove('show');document.getElementById('bossHpBar').classList.remove('show');showScreen('titleScreen');}
+function showTitle(){G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);document.getElementById('skillModal').classList.remove('open');document.getElementById('bossIntro').classList.remove('show');document.getElementById('bossHpBar').classList.remove('show');document.getElementById('pauseOverlay').style.display='none';showScreen('titleScreen');}
 function showTitleToplist(){
   const list=getToplist();
   if(!list.length){alert('Henüz skor kaydedilmemiş!\nOyna ve zirveye çık!');return;}
-  const rows=list.map((e,i)=>`${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${e.score.toLocaleString()} puan — Lv${e.level} · Kat${e.floor} · ${e.kills} kill`).join('\n');
+  const rows=list.map((e,i)=>`${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${(e.name||'???').padEnd(10)} ${e.score.toLocaleString().padStart(8)} · Lv${e.level}`).join('\n');
   alert('🏆 GEORIFT - TOP 10\n\n'+rows);
 }
 function showHelp(){alert('◈ GEORIFT ◈\n\n▶ Ekrana dokun → Joystick oraya gelir\n▶ Ateş OTOMATİK\n▶ Beceriler de OTOMATİK\n▶ Sağdaki butonlar manuel kullanım\n▶ ◈ → Yetenek ağacı\n\nHer 5. dalgada PATRON!\nKart seçiminde DÜŞMANLAR DURUR!');}
+
+// ══════════════════════════════
+// PLAYER NAME
+// ══════════════════════════════
+let playerName = localStorage.getItem('georift_name') || '';
+
+function requestName(){
+  AU.init();
+  const modal = document.getElementById('nameModal');
+  const inp = document.getElementById('playerNameInput');
+  inp.value = playerName;
+  modal.style.display='flex';
+}
+function confirmName(){
+  const inp = document.getElementById('playerNameInput');
+  const name = inp.value.trim() || 'ANONIM';
+  playerName = name;
+  try{localStorage.setItem('georift_name',name);}catch(e){}
+  document.getElementById('nameModal').style.display='none';
+  startGame();
+}
+// Enter tuşu ile de onayla
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('nameModal').style.display==='flex') confirmName();
+  if(e.key==='Escape'&&G.running&&!G.gameOver) togglePause();
+});
+
+// ==============================================================
+// PAUSE
+// ==============================================================
+function togglePause(){
+  if(!G.running||G.gameOver)return;
+  G.paused=!G.paused;
+  const ov=document.getElementById('pauseOverlay');
+  const btn=document.getElementById('pauseBtn');
+  if(G.paused){
+    ov.style.display='flex';
+    if(btn)btn.textContent='▶';
+    AU.pauseMusic();
+    G.lastTime=0;
+  }else{
+    ov.style.display='none';
+    if(btn)btn.textContent='⏸';
+    AU.resumeMusic();
+    G.lastTime=performance.now();
+  }
+}
+function toggleSound(){
+  AU.toggleSound();
+  const btn=document.querySelector('#pauseOverlay button[onclick="toggleSound()"]');
+  if(btn)btn.textContent=AU.soundOn?'🔊 AÇIK':'🔇 KAPALI';
+}
+function toggleMusic(){
+  AU.toggleMusic();
+  const btn=document.querySelector('#pauseOverlay button[onclick="toggleMusic()"]');
+  if(btn)btn.textContent=AU.musicOn?'🎵 AÇIK':'🎵 KAPALI';
+}
+
+// ==============================================================
+// SETTINGS
+// ==============================================================
+function showSettings(){
+  AU.init();
+  const modal=document.getElementById('settingsModal');
+  document.getElementById('sfxToggleBtn').textContent=AU.soundOn?'AÇIK':'KAPALI';
+  document.getElementById('musicToggleBtn').textContent=AU.musicOn?'AÇIK':'KAPALI';
+  document.getElementById('settingsNameDisplay').textContent=playerName||'-';
+  modal.style.display='flex';
+}
+function closeSettings(){
+  document.getElementById('settingsModal').style.display='none';
+}
+function settingsToggleSound(){
+  AU.init();AU.toggleSound();
+  document.getElementById('sfxToggleBtn').textContent=AU.soundOn?'AÇIK':'KAPALI';
+}
+function settingsToggleMusic(){
+  AU.init();AU.toggleMusic();
+  document.getElementById('musicToggleBtn').textContent=AU.musicOn?'AÇIK':'KAPALI';
+}
+function clearToplist(){
+  if(confirm('Tüm skorlar silinsin mi?')){
+    try{localStorage.removeItem('georift_top');}catch(e){}
+    alert('Toplist silindi.');
+  }
+}
+
+// ==============================================================
+// CARDS PREVIEW
+// ==============================================================
+function showCardsPreview(){
+  const modal=document.getElementById('cardsPreviewModal');
+  modal.style.display='flex';
+  // Kartları rarity'ye göre grupla
+  const rarities=['legendary','epic','rare','common'];
+  const labels={legendary:'👑 EFSANE',epic:'💜 EPİK',rare:'💙 NADİR',common:'⬜ YAYGIN'};
+  let html='';
+  rarities.forEach(r=>{
+    const cards=ALL_CARDS.filter(c=>c.r===r);
+    if(!cards.length)return;
+    html+=`<div style="font-size:.62rem;color:var(--c4);margin:8px 0 4px;letter-spacing:.15em;">${labels[r]}</div>`;
+    html+=`<div style="display:flex;flex-direction:column;gap:4px;">`;
+    cards.forEach(c=>{
+      html+=`<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border-radius:3px;border:1px solid rgba(255,255,255,.07);">
+        <span style="font-size:1.1rem;width:24px;text-align:center;">${c.i}</span>
+        <div><div style="font-size:.68rem;color:var(--tx);">${c.n}</div><div style="font-size:.56rem;color:var(--tx2);">${c.d}</div></div>
+        <div style="margin-left:auto;font-size:.55rem;color:var(--c5);">${c.e}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById('cardsPreviewList').innerHTML=html;
+  // Yetenek ağaçları özeti
+  let thtml='';
+  [...MAIN_TREES,...SIDE_TREES].forEach(t=>{
+    thtml+=`<div style="background:var(--bg3);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:6px;text-align:center;">
+      <div style="font-size:1rem;">${t.icon}</div>
+      <div style="font-size:.55rem;color:var(--tx);margin-top:2px;">${t.name}</div>
+      <div style="font-size:.48rem;color:var(--tx2);margin-top:1px;">${t.skills.length} yetenek</div>
+    </div>`;
+  });
+  document.getElementById('treesPreviewList').innerHTML=thtml;
+}
+function closeCardsPreview(){
+  document.getElementById('cardsPreviewModal').style.display='none';
+}
 
 // ══════════════════════════════
 // START GAME
@@ -831,7 +1160,8 @@ function startGame(){
   G.camera={x:WORLD_W/2-G.W/2,y:WORLD_H/2-G.H/2};
   generateWorld();spawnWave();setupControls();showScreen('gameScreen');
   G.running=true;G.lastTime=performance.now();gameLoop();
-  updateHUD();showMsg('◈ GEORIFT! Kart seçiminde yetenek kazan!');
+  updateHUD();showMsg('◈ GEORIFT · '+playerName+'! Kart seçiminde SP kazan!');
+  AU.resumeMusic();
 }
 
 // ══════════════════════════════
@@ -1117,9 +1447,14 @@ function update(dt){
     const dx=p.x-e.x,dy=p.y-e.y,dist=Math.hypot(dx,dy)||1;
     e.rot+=.02*dt;
     if(dist>e.size+18){e.x+=dx/dist*e.speed*dt;e.y+=dy/dist*e.speed*dt;}
-    if(e.type>=2&&e.type<=5){e.shootCd-=dt;
-      if(e.shootCd<=0){e.shootCd=58+Math.random()*58;const a=Math.atan2(dy,dx);
-        G.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:Math.floor(e.atk*.42),life:90,owner:'enemy',col:['#ff6b35','#7b2fff','#ff006e','#ffd60a'][e.type-2]||'#f00',r:4});}}
+    const et=e.etype;
+    if(et&&et.shoots){e.shootCd-=dt;
+      if(e.shootCd<=0){e.shootCd=(et.shootRate||60)+Math.random()*(et.shootRate||60)*.5;const a=Math.atan2(dy,dx);
+        G.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:Math.floor(e.atk*.42),life:90,owner:'enemy',col:et.col,r:4,freeze:et.freeze,burn:et.burn});}}
+    if(et&&et.teleport){e.teleportCd-=dt;
+      if(e.teleportCd<=0&&dist<350){e.teleportCd=90+Math.random()*60;const a2=Math.random()*Math.PI*2,td=100+Math.random()*80;
+        e.x=Math.max(30,Math.min(WORLD_W-30,p.x+Math.cos(a2)*td));e.y=Math.max(30,Math.min(WORLD_H-30,p.y+Math.sin(a2)*td));
+        spawnParticles(e.x,e.y,'#e040fb',8);}}
     if(e.burnTime>0){e.burnTime-=dt;e.hp-=.07*dt;if(e.hp<=0)killEnemy(e);}
     if(dist<e.size+15&&p.invincible<=0){const dmg=Math.max(0,e.atk*.035*dt-p.def*.005);p.hp-=dmg;if(p.hp<=0)tryGameOver();}
   });
@@ -1224,10 +1559,10 @@ function render(){
   });ctx.globalAlpha=1;
 
   // Enemies
-  const eCols=['#ff6b35','#7b2fff','#00f5ff','#ffd60a','#ff006e','#06d6a0'];
+  const eCols=['#ff6b35','#7b2fff','#00f5ff','#ffd60a','#ff006e','#06d6a0','#6a0dad','#4cc9f0','#ff4d00','#e040fb'];
   G.enemies.forEach(e=>{
     const sx=e.x-cx,sy=e.y-cy;if(sx<-100||sx>W+100||sy<-100||sy>H+100)return;
-    const col=e.isBoss?e.bossDef.col:eCols[e.type%eCols.length];
+    const col=e.isBoss?e.bossDef.col:(e.etype?e.etype.col:eCols[e.type%eCols.length]);
     const dCol=e.freezeTime>0?'#90e0ef':e.stunTime>0?'#ffd700':col;
     ctx.save();ctx.translate(sx,sy);
     if(e.isBoss){
@@ -1335,7 +1670,7 @@ function renderToplist(containerId,myScore){
   if(!list.length){el.innerHTML='';return;}
   const rows=list.map((e,i)=>{
     const isMe=e._isNew;
-    return `<div class="toplist-row${isMe?' tl-you':''}"><span class="tl-rank">${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span><span class="tl-score">${e.score.toLocaleString()}</span><span class="tl-info">Lv${e.level} · F${e.floor} · ${e.kills}☠</span></div>`;
+    return `<div class="toplist-row${isMe?' tl-you':''}"><span class="tl-rank">${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span><span class="tl-score">${(e.name||'???').substring(0,10)}</span><span class="tl-info">${e.score.toLocaleString()} · Lv${e.level}</span></div>`;
   }).join('');
   el.innerHTML=`<div class="toplist-box"><div class="toplist-title">◈ EN İYİ SKORLAR</div>${rows}</div>`;
   // _isNew bayrağını temizle
@@ -1357,7 +1692,7 @@ function tryGameOver(){
   document.getElementById('goKills').textContent=G.player.kills;
   document.getElementById('goLevel').textContent=G.player.level;
   // Toplist'e kaydet
-  saveToToplist({score:G.player.score,level:G.player.level,floor:G.floor,kills:G.player.kills,_isNew:true});
+  saveToToplist({name:playerName||'ANONIM',score:G.player.score,level:G.player.level,floor:G.floor,kills:G.player.kills,_isNew:true});
   setTimeout(()=>{showScreen('goScreen');renderToplist('goToplist',G.player.score);},700);
 }
 
@@ -1365,7 +1700,7 @@ function doVictory(){
   G.running=false;document.getElementById('bossHpBar').classList.remove('show');
   document.getElementById('vcFloor').textContent=G.floor;document.getElementById('vcScore').textContent=G.player.score;
   document.getElementById('vcKills').textContent=G.player.kills;document.getElementById('vcLevel').textContent=G.player.level;
-  saveToToplist({score:G.player.score,level:G.player.level,floor:G.floor,kills:G.player.kills,_isNew:true});
+  saveToToplist({name:playerName||'ANONIM',score:G.player.score,level:G.player.level,floor:G.floor,kills:G.player.kills,_isNew:true});
   showScreen('victoryScreen');
   renderToplist('vcToplist',G.player.score);
 }
