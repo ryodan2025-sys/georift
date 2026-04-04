@@ -74,18 +74,17 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* JOYSTICK - dynamic, appears where you touch */
 #joystickBase{width:100px;height:100px;border-radius:50%;background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.15);position:absolute;pointer-events:none;display:none;z-index:20;transform:translate(-50%,-50%);}
 #joystickKnob{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,.6),rgba(0,245,255,.1));border:2px solid var(--c);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 14px rgba(0,245,255,.4);}
-#touchZone{position:absolute;left:0;top:50px;right:0;bottom:150px;z-index:15;touch-action:none;}
+#touchZone{position:absolute;left:0;top:50px;right:0;bottom:65px;z-index:15;touch-action:none;}
 
-/* RIGHT BUTTONS */
-.right-btns{position:absolute;bottom:18px;right:14px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;z-index:20;}
-.act-row{display:flex;gap:8px;}
-.act-btn{width:52px;height:52px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:1.2rem;position:relative;overflow:hidden;cursor:pointer;}
-.act-btn:active{transform:scale(.88);}
-.cd-text{position:absolute;bottom:2px;font-size:.48rem;color:#fff;}
-.dash-act{border-color:var(--c);background:rgba(0,245,255,.1);box-shadow:0 0 14px rgba(0,245,255,.25);}
-.sk1-act{border-color:var(--c2);background:rgba(255,0,110,.1);}
-.sk2-act{border-color:var(--c3);background:rgba(123,47,255,.1);}
-.sk3-act{border-color:var(--c4);background:rgba(255,190,11,.1);}
+/* SKILL MINI BUTTONS - sağ alt, küçük */
+.skill-mini-btns{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;align-items:center;z-index:20;}
+.mini-btn{width:42px;height:42px;border-radius:8px;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-size:1.0rem;position:relative;overflow:hidden;cursor:pointer;background:rgba(5,8,16,.7);}
+.mini-btn:active{transform:scale(.85);}
+.cd-text{position:absolute;bottom:1px;font-size:.42rem;color:#fff;letter-spacing:.02em;}
+.dash-act{border-color:var(--c);box-shadow:0 0 8px rgba(0,245,255,.2);}
+.sk1-act{border-color:var(--c2);}
+.sk2-act{border-color:var(--c3);}
+.sk3-act{border-color:var(--c4);}
 
 /* CARD LEVEL UP - full revamp */
 #lvModal{position:fixed;inset:0;background:rgba(2,4,14,.96);z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px);}
@@ -154,6 +153,15 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .boss-intro-desc{font-size:.62rem;color:var(--tx2);text-align:center;max-width:260px;line-height:1.8;}
 .phase-tag{display:inline-block;padding:3px 8px;border:1px solid rgba(255,190,11,.4);background:rgba(255,190,11,.07);font-size:.58rem;color:var(--c4);border-radius:2px;margin:2px;}
 
+/* TOPLIST */
+.toplist-box{background:var(--bg2);border:1px solid var(--br);border-radius:4px;padding:8px 10px;font-size:.58rem;}
+.toplist-title{color:var(--c);letter-spacing:.2em;margin-bottom:6px;font-size:.62rem;}
+.toplist-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid rgba(0,245,255,.07);}
+.toplist-row:last-child{border-bottom:none;}
+.tl-rank{min-width:18px;color:var(--tx2);}
+.tl-score{flex:1;color:var(--c4);}
+.tl-info{color:var(--tx2);font-size:.52rem;}
+.tl-you{background:rgba(0,245,255,.07);border-radius:2px;}
 /* GAME OVER */
 #goScreen{background:var(--bg);z-index:80;}
 .go-title{font-size:2rem;letter-spacing:.5em;color:var(--c2);margin-bottom:4px;animation:glow 1.5s infinite;}
@@ -202,7 +210,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="sub">◈ GEOMETRİK ROGUELIKE ◈</div>
     <br>
     <button class="btn pri" onclick="startGame()">▶ OYUNA BAŞLA</button>
-    <button class="btn pur" onclick="openSkillMenuFromTitle()">◈ YETENEK AĞACI</button>
+    <button class="btn" onclick="showTitleToplist()">🏆 TOPLIST</button>
     <button class="btn" onclick="showHelp()">? YARDIM</button>
     <div style="margin-top:8px;font-size:.55rem;color:var(--tx2);text-align:center;line-height:2;">
       OTOMATİK ATEŞ · OTOMATİK BECERİ<br>
@@ -255,15 +263,12 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
   <div id="clearBanner" class="normal"></div>
 
   <!-- Right action buttons -->
-  <div class="right-btns">
-    <div class="act-row">
-      <div class="act-btn sk2-act" onclick="playerSkill(2)">❄️<div class="cd-text" id="bcd2"></div></div>
-      <div class="act-btn sk3-act" onclick="playerSkill(3)">⚡<div class="cd-text" id="bcd3"></div></div>
-    </div>
-    <div class="act-row">
-      <div class="act-btn dash-act" onclick="playerDash()">💨<div class="cd-text" id="bcdD"></div></div>
-      <div class="act-btn sk1-act" onclick="playerSkill(1)">🔥<div class="cd-text" id="bcd1"></div></div>
-    </div>
+  <!-- Küçük skill butonları sağ alt -->
+  <div class="skill-mini-btns">
+    <div class="mini-btn dash-act" onclick="playerDash()">💨<div class="cd-text" id="bcdD"></div></div>
+    <div class="mini-btn sk1-act" onclick="playerSkill(1)">🔥<div class="cd-text" id="bcd1"></div></div>
+    <div class="mini-btn sk2-act" onclick="playerSkill(2)">❄️<div class="cd-text" id="bcd2"></div></div>
+    <div class="mini-btn sk3-act" onclick="playerSkill(3)">⚡<div class="cd-text" id="bcd3"></div></div>
   </div>
 </div>
 
@@ -308,6 +313,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="go-stat"><div class="go-sv" id="goKills">0</div><div class="go-sl">DÜŞMAN</div></div>
     <div class="go-stat"><div class="go-sv" id="goLevel">1</div><div class="go-sl">SEVİYE</div></div>
   </div>
+  <div id="goToplist" style="width:82%;max-width:280px;margin-bottom:8px;"></div>
   <div class="go-btns">
     <button class="btn pri" onclick="startGame()">↺ TEKRAR OYNA</button>
     <button class="btn" onclick="showTitle()">⌂ ANA MENÜ</button>
@@ -316,6 +322,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 
 <!-- VICTORY -->
 <div id="victoryScreen" class="screen">
+  <div id="vcToplist" style="width:82%;max-width:300px;margin-bottom:10px;"></div>
   <div class="vc-title">⭐ ZAFERİN SENINDIR!</div>
   <div style="font-size:.6rem;color:var(--c4);letter-spacing:.3em;margin-bottom:14px">TÜM PATRONLAR YENİLDİ</div>
   <div class="go-stats">
@@ -442,10 +449,10 @@ const SIDE_TREES=[
 // Nadir oranları düşürüldü
 // ══════════════════════════════
 const CARD_RARITY = {
-  common:    { weight: 55, label: 'YAYGIN',   badge: 'badge-common' },
-  rare:      { weight: 28, label: 'NADİR',    badge: 'badge-rare' },
-  epic:      { weight: 13, label: 'EPİK',     badge: 'badge-epic' },
-  legendary: { weight:  4, label: 'EFSANE',  badge: 'badge-legendary' },
+  common:    { weight: 62, label: 'YAYGIN',   badge: 'badge-common' },
+  rare:      { weight: 26, label: 'NADİR',    badge: 'badge-rare' },
+  epic:      { weight:  9, label: 'EPİK',     badge: 'badge-epic' },
+  legendary: { weight:  3, label: 'EFSANE',  badge: 'badge-legendary' },
 };
 
 function pickRarity(){
@@ -461,7 +468,7 @@ function pickRarity(){
 const ALL_CARDS = [
   // COMMON
   {n:'Güç Artışı',i:'💪',d:'Saldırı +6',e:'+6 ATK',r:'common',fn:p=>{p.atk+=6;}},
-  {n:'Sağlık',i:'❤️',d:'Max HP +50, tamamen iyileşir',e:'+50 HP',r:'common',fn:p=>{p.maxHp+=50;p.hp=p.maxHp;}},
+  {n:'Sağlık',i:'❤️',d:'Max HP +25, tamamen iyileşir',e:'+25 HP',r:'common',fn:p=>{p.maxHp=Math.min(200,p.maxHp+25);p.hp=p.maxHp;}},
   {n:'Mana Artış',i:'💜',d:'Max MP +30',e:'+30 MP',r:'common',fn:p=>{p.maxMp+=30;p.mp=p.maxMp;}},
   {n:'Hız',i:'💨',d:'Hareket hızı +0.35',e:'+0.35 SPD',r:'common',fn:p=>{p.speed+=0.35;}},
   {n:'Savunma',i:'🛡️',d:'Savunma +5',e:'+5 DEF',r:'common',fn:p=>{p.def+=5;}},
@@ -479,9 +486,22 @@ const ALL_CARDS = [
   {n:'Aşırı Yük',i:'⚡',d:'ATK +20, MAX HP -30',e:'ATK+20 HP-30',r:'epic',fn:p=>{p.atk+=20;p.maxHp=Math.max(50,p.maxHp-30);p.hp=Math.min(p.hp,p.maxHp);}},
   {n:'Kara Delik',i:'⚫',d:'Hasar menzili 2x genişler',e:'RANGE x2',r:'epic',fn:p=>{p.range=(p.range||1)*2;}},
   // LEGENDARY
-  {n:'TANRİSAL GÜÇ',i:'👑',d:'TÜM STATLAR %25 artar!',e:'ALL +25%',r:'legendary',fn:p=>{p.atk=Math.floor(p.atk*1.25);p.def=Math.floor(p.def*1.25);p.maxHp=Math.floor(p.maxHp*1.25);p.maxMp=Math.floor(p.maxMp*1.25);p.speed*=1.1;p.hp=p.maxHp;p.mp=p.maxMp;}},
+  {n:'TANRİSAL GÜÇ',i:'👑',d:'TÜM STATLAR %25 artar!',e:'ALL +25%',r:'legendary',fn:p=>{p.atk=Math.floor(p.atk*1.25);p.def=Math.floor(p.def*1.25);p.maxHp=Math.min(200,Math.floor(p.maxHp*1.25));p.maxMp=Math.floor(p.maxMp*1.25);p.speed*=1.1;p.hp=p.maxHp;p.mp=p.maxMp;}},
   {n:'ÖLÜMSÜZLÜK',i:'♾️',d:'HP 0\'a düşünce 1 kez dirilir!',e:'1x Revive',r:'legendary',fn:p=>{p.hasRevive=true;}},
   {n:'EJDER KRAL',i:'🐲',d:'Saldırı 2 katına çıkar!',e:'ATK x2',r:'legendary',fn:p=>{p.atk*=2;}},
+  // SKILL UNLOCK CARDS (kart seçiminde yetenek ağacından gelir)
+  {n:'Ateş Ustası',i:'🔥',d:'Ateş yeteneği açılır (+1 SP)',e:'+1 SP + Ateş',r:'rare',fn:p=>{G.sp+=1;showMsg('🔥 Ateş kanalı açıldı!');}},
+  {n:'Buz Ustası',i:'❄️',d:'Buz yeteneği açılır (+1 SP)',e:'+1 SP + Buz',r:'rare',fn:p=>{G.sp+=1;showMsg('❄️ Buz kanalı açıldı!');}},
+  {n:'Şimşek Ustası',i:'⚡',d:'Şimşek yeteneği açılır (+1 SP)',e:'+1 SP + Şimşek',r:'rare',fn:p=>{G.sp+=1;showMsg('⚡ Şimşek kanalı açıldı!');}},
+  {n:'Kritik Açılım',i:'🎯',d:'Kritik yetenek (+1 SP)',e:'+1 SP + Kritik',r:'rare',fn:p=>{G.sp+=1;showMsg('🎯 Kritik kanalı açıldı!');}},
+  {n:'Hız Açılımı',i:'💨',d:'Hız yeteneği (+1 SP)',e:'+1 SP + Hız',r:'rare',fn:p=>{G.sp+=1;showMsg('💨 Hız kanalı açıldı!');}},
+  {n:'Gölge Güç',i:'🌑',d:'Gölge yeteneği (+1 SP)',e:'+1 SP + Gölge',r:'epic',fn:p=>{G.sp+=1;showMsg('🌑 Gölge kanalı açıldı!');}},
+  {n:'Ejder Güç',i:'🐉',d:'Ejder yeteneği (+2 SP)',e:'+2 SP + Ejder',r:'epic',fn:p=>{G.sp+=2;showMsg('🐉 Ejder kanalı açıldı!');}},
+  {n:'Arkan Güç',i:'🔮',d:'Arkan yeteneği (+2 SP)',e:'+2 SP + Arkan',r:'epic',fn:p=>{G.sp+=2;showMsg('🔮 Arkan kanalı açıldı!');}},
+  {n:'Boşluk Güç',i:'🌌',d:'Boşluk yeteneği (+2 SP)',e:'+2 SP + Boşluk',r:'epic',fn:p=>{G.sp+=2;showMsg('🌌 Boşluk kanalı açıldı!');}},
+  {n:'Yaşam Güç',i:'💚',d:'Yaşam yeteneği (+2 SP)',e:'+2 SP + Yaşam',r:'epic',fn:p=>{G.sp+=2;showMsg('💚 Yaşam kanalı açıldı!');}},
+  {n:'SP Patlaması',i:'✨',d:'3 Yetenek Puanı kazan!',e:'+3 SP',r:'epic',fn:p=>{G.sp+=3;showMsg('✨ +3 SP!');}},
+  {n:'TANRISAL SP',i:'🌟',d:'5 Yetenek Puanı kazan!',e:'+5 SP',r:'legendary',fn:p=>{G.sp+=5;showMsg('🌟 +5 SP!');}},
 ];
 
 // ══════════════════════════════
@@ -526,9 +546,9 @@ function generateWorld(){
 
 function spawnWave(){
   G.enemies=G.enemies.filter(e=>e.isBoss);
-  const count=4+G.floor*2+G.wave*2;
+  const count=5+G.floor*2+G.wave*3;
   const p=G.player;
-  for(let i=0;i<Math.min(count,16);i++){
+  for(let i=0;i<Math.min(count,22);i++){
     let ex,ey,tries=0;
     do{
       const a=Math.random()*Math.PI*2,d=280+Math.random()*450;
@@ -538,11 +558,11 @@ function spawnWave(){
     }while(Math.hypot(ex-p.x,ey-p.y)<200&&tries<10);
     const isElite=Math.random()<.15;
     const tier=isElite?2:1;
-    const hp=(18+G.floor*7+G.wave*3)*tier;
+    const hp=(28+G.floor*11+G.wave*5)*tier;
     // XP ve HP düşürüldü
     G.enemies.push({x:ex,y:ey,hp,maxHp:hp,
-      speed:(0.85+G.floor*.07)*(tier===2?.72:1),
-      atk:(3+G.floor*1.5)*tier,
+      speed:(1.0+G.floor*.09)*(tier===2?.78:1),
+      atk:(5+G.floor*2.5)*tier,
       type:Math.floor(Math.random()*6),tier,size:[11,16][tier-1],
       vx:0,vy:0,shootCd:Math.random()*60,stunTime:0,burnTime:0,freezeTime:0,rot:0,
       dropXp:(5+G.wave*1.5)*tier, // XP düşürüldü
@@ -562,8 +582,8 @@ function spawnBoss(){
   const a=Math.random()*Math.PI*2;
   const bx=Math.max(80,Math.min(WORLD_W-80,p.x+Math.cos(a)*320));
   const by=Math.max(80,Math.min(WORLD_H-80,p.y+Math.sin(a)*320));
-  const hp=Math.floor((180+G.floor*45)*def.hpMult);
-  const boss={x:bx,y:by,hp,maxHp:hp,speed:(0.55+G.floor*.04)*.7,atk:Math.floor((12+G.floor*4)*def.atkMult),
+  const hp=Math.floor((260+G.floor*65)*def.hpMult);
+  const boss={x:bx,y:by,hp,maxHp:hp,speed:(0.75+G.floor*.06)*.85,atk:Math.floor((18+G.floor*6)*def.atkMult),
     type:5,tier:3,size:def.size,isBoss:true,bossDef:def,
     phase:0,shootCd:0,specialCd:0,spinAngle:0,
     stunTime:0,burnTime:0,freezeTime:0,rot:0,vx:0,vy:0,
@@ -613,7 +633,7 @@ function updateBoss(boss,dt){
   if(newPhase>boss.phase){
     boss.phase=newPhase;G.bossPhase=newPhase;
     flashScreen('gold');showMsg(`⚠️ ${def.name} FAZ ${newPhase+1}!`);
-    boss.speed*=1.2;boss.atk=Math.floor(boss.atk*1.15);
+    boss.speed*=1.3;boss.atk=Math.floor(boss.atk*1.25);
     spawnParticles(boss.x,boss.y,def.col,35);
     if(newPhase>=1&&boss.orbits.length<8)
       for(let i=0;i<4;i++) boss.orbits.push({angle:i/4*Math.PI*2+.4,r:55,speed:-0.04,alive:true,dmg:boss.atk*.3});
@@ -649,19 +669,19 @@ function updateBoss(boss,dt){
     }
   });
   if(boss.shootCd<=0){
-    const shots=4+boss.phase*2;boss.shootCd=Math.max(20,55-boss.phase*12);
+    const shots=6+boss.phase*3;boss.shootCd=Math.max(12,42-boss.phase*10);
     if(def.pattern==='spiral'){
       for(let i=0;i<shots;i++){const a=boss.spinAngle+i/shots*Math.PI*2;
-        G.bullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*3.5,vy:Math.sin(a)*3.5,dmg:Math.floor(boss.atk*.22),life:120,owner:'enemy',col:def.col,r:5});}
+        G.bullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:Math.floor(boss.atk*.28),life:130,owner:'enemy',col:def.col,r:5});}
     }else if(def.pattern==='freeze_wave'){
       for(let i=0;i<shots;i++){const a=Math.atan2(dy,dx)+(i-(shots-1)/2)*.22;
-        G.bullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*4,vy:Math.sin(a)*4,dmg:Math.floor(boss.atk*.28),life:100,owner:'enemy',col:'#90e0ef',r:6,freeze:true});}
+        G.bullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*5,vy:Math.sin(a)*5,dmg:Math.floor(boss.atk*.35),life:110,owner:'enemy',col:'#90e0ef',r:6,freeze:true});}
     }else{
       for(let i=0;i<shots;i++){const a=Math.atan2(dy,dx)+(i-(shots-1)/2)*.25;
-        G.bullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:Math.floor(boss.atk*.25),life:110,owner:'enemy',col:def.col,r:5});}
+        G.bullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*5.5,vy:Math.sin(a)*5.5,dmg:Math.floor(boss.atk*.32),life:120,owner:'enemy',col:def.col,r:5});}
     }
   }
-  if(boss.specialCd<=0){boss.specialCd=200-boss.phase*30;doSpecial(boss,def,p,dx,dy,dist);}
+  if(boss.specialCd<=0){boss.specialCd=150-boss.phase*25;doSpecial(boss,def,p,dx,dy,dist);}
   if(dist<boss.size+20&&p.invincible<=0){p.hp-=Math.max(0,boss.atk*.035*dt-p.def*.008);if(p.hp<=0)tryGameOver();}
   updateBossHpBar();
 }
@@ -681,7 +701,7 @@ function killBoss(boss){
   G.player.score+=2500+G.floor*400;G.player.xp+=boss.dropXp;G.player.kills++;
   G.sp+=3;showMsg('👑 PATRON YENİLDİ! +3 SP');
   spawnParticles(boss.x,boss.y,boss.bossDef.col,70);flashScreen('gold');AU.bossdie();
-  for(let i=0;i<6;i++){const a=Math.random()*Math.PI*2,d=25+Math.random()*70;G.pickups.push({x:boss.x+Math.cos(a)*d,y:boss.y+Math.sin(a)*d,type:Math.random()<.6?'hp':'mp',r:11,alive:true});}
+  for(let i=0;i<3;i++){const a=Math.random()*Math.PI*2,d=25+Math.random()*70;G.pickups.push({x:boss.x+Math.cos(a)*d,y:boss.y+Math.sin(a)*d,type:Math.random()<.55?'hp':'mp',r:11,alive:true});}
   document.getElementById('bossHpBar').classList.remove('show');
   checkLevelUp();updateHUD();
   if(G.bossKillCount>=BOSS_DEFS.length&&G.floor>=5){setTimeout(doVictory,2000);return;}
@@ -780,6 +800,12 @@ function showScreen(id){
   const el=document.getElementById(id);el.classList.add('active');el.style.display='flex';
 }
 function showTitle(){G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);document.getElementById('skillModal').classList.remove('open');document.getElementById('bossIntro').classList.remove('show');document.getElementById('bossHpBar').classList.remove('show');showScreen('titleScreen');}
+function showTitleToplist(){
+  const list=getToplist();
+  if(!list.length){alert('Henüz skor kaydedilmemiş!\nOyna ve zirveye çık!');return;}
+  const rows=list.map((e,i)=>`${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${e.score.toLocaleString()} puan — Lv${e.level} · Kat${e.floor} · ${e.kills} kill`).join('\n');
+  alert('🏆 GEORIFT - TOP 10\n\n'+rows);
+}
 function showHelp(){alert('◈ GEORIFT ◈\n\n▶ Ekrana dokun → Joystick oraya gelir\n▶ Ateş OTOMATİK\n▶ Beceriler de OTOMATİK\n▶ Sağdaki butonlar manuel kullanım\n▶ ◈ → Yetenek ağacı\n\nHer 5. dalgada PATRON!\nKart seçiminde DÜŞMANLAR DURUR!');}
 
 // ══════════════════════════════
@@ -800,12 +826,12 @@ function startGame(){
   G.enemies=[];G.bullets=[];G.particles=[];G.pickups=[];
   G.floor=1;G.wave=1;G.waveCleared=false;G.gameOver=false;G.bossIntroOpen=false;G.paused=false;
   G.bossActive=false;G.boss=null;G.bossPhase=0;G.bossKillCount=0;
-  G.skillLevels={};G.sp=3;
+  G.skillLevels={};G.sp=0;
   G._stars=null;G._meteors=[];
   G.camera={x:WORLD_W/2-G.W/2,y:WORLD_H/2-G.H/2};
   generateWorld();spawnWave();setupControls();showScreen('gameScreen');
   G.running=true;G.lastTime=performance.now();gameLoop();
-  updateHUD();showMsg('◈ GEORIFT! 3 SP ile başlıyorsun');
+  updateHUD();showMsg('◈ GEORIFT! Kart seçiminde yetenek kazan!');
 }
 
 // ══════════════════════════════
@@ -864,7 +890,7 @@ function autoFire(){
   for(let i=0;i<shots;i++){
     const spread=(i-(shots-1)/2)*0.18;const angle=Math.atan2(dy,dx)+spread;
     G.bullets.push({x:p.x,y:p.y,vx:Math.cos(angle)*7,vy:Math.sin(angle)*7,
-      dmg:Math.floor(p.atk*(.85+Math.random()*.3)),life:100,owner:'player',col:bCol,r:5});
+      dmg:Math.floor(p.atk*(.9+Math.random()*.3)),life:105,owner:'player',col:bCol,r:5});
   }
   AU.shoot();
 }
@@ -930,7 +956,7 @@ function killEnemy(enemy){
   const p=G.player;p.xp+=enemy.dropXp;p.score+=enemy.dropXp*2;p.kills++;
   if(p.lifesteal>0)p.hp=Math.min(p.maxHp,p.hp+enemy.dropXp*p.lifesteal);
   // Can ve XP düşürüldü
-  if(Math.random()<.18)G.pickups.push({x:enemy.x,y:enemy.y,type:Math.random()<.6?'hp':'mp',r:9,alive:true});
+  if(Math.random()<.10)G.pickups.push({x:enemy.x,y:enemy.y,type:Math.random()<.55?'hp':'mp',r:9,alive:true});
   spawnParticles(enemy.x,enemy.y,['#ff6b35','#ffd60a'][enemy.tier-1]||'#ff006e',12);
   AU.die();
   checkLevelUp();updateHUD();
@@ -945,9 +971,9 @@ function killEnemy(enemy){
 function checkLevelUp(){
   const p=G.player;
   while(p.xp>=p.xpNext){
-    p.xp-=p.xpNext;p.xpNext=Math.floor(p.xpNext*1.32);
+    p.xp-=p.xpNext;p.xpNext=Math.floor(p.xpNext*1.45);
     p.level++;G.sp++;
-    p.maxHp+=10;p.hp=Math.min(p.hp+15,p.maxHp);
+    if(p.maxHp<200)p.maxHp=Math.min(200,p.maxHp+8);p.hp=Math.min(p.hp+8,p.maxHp);
     p.maxMp+=5;p.mp=Math.min(p.mp+8,p.maxMp);
     p.atk+=1;AU.levelup();showLevelUp();
   }
@@ -1093,9 +1119,9 @@ function update(dt){
     if(dist>e.size+18){e.x+=dx/dist*e.speed*dt;e.y+=dy/dist*e.speed*dt;}
     if(e.type>=2&&e.type<=5){e.shootCd-=dt;
       if(e.shootCd<=0){e.shootCd=58+Math.random()*58;const a=Math.atan2(dy,dx);
-        G.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*3.8,vy:Math.sin(a)*3.8,dmg:Math.floor(e.atk*.32),life:85,owner:'enemy',col:['#ff6b35','#7b2fff','#ff006e','#ffd60a'][e.type-2]||'#f00',r:4});}}
+        G.bullets.push({x:e.x,y:e.y,vx:Math.cos(a)*4.5,vy:Math.sin(a)*4.5,dmg:Math.floor(e.atk*.42),life:90,owner:'enemy',col:['#ff6b35','#7b2fff','#ff006e','#ffd60a'][e.type-2]||'#f00',r:4});}}
     if(e.burnTime>0){e.burnTime-=dt;e.hp-=.07*dt;if(e.hp<=0)killEnemy(e);}
-    if(dist<e.size+15&&p.invincible<=0){const dmg=Math.max(0,e.atk*.022*dt-p.def*.005);p.hp-=dmg;if(p.hp<=0)tryGameOver();}
+    if(dist<e.size+15&&p.invincible<=0){const dmg=Math.max(0,e.atk*.035*dt-p.def*.005);p.hp-=dmg;if(p.hp<=0)tryGameOver();}
   });
   G.bullets=G.bullets.filter(b=>{
     b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
@@ -1120,8 +1146,8 @@ function update(dt){
   G.pickups.forEach(pk=>{
     if(!pk.alive)return;const d=Math.hypot(pk.x-p.x,pk.y-p.y);
     if(d<24){pk.alive=false;AU.pickup();
-      if(pk.type==='hp'){p.hp=Math.min(p.maxHp,p.hp+28);showMsg('+28 ❤️');}
-      else if(pk.type==='mp'){p.mp=Math.min(p.maxMp,p.mp+22);showMsg('+22 💜');}
+      if(pk.type==='hp'){p.hp=Math.min(p.maxHp,p.hp+14);showMsg('+14 ❤️');}
+      else if(pk.type==='mp'){p.mp=Math.min(p.maxMp,p.mp+12);showMsg('+12 💜');}
       else{p.score+=180;showMsg('+180 PTS 💰');}updateHUD();}
   });
   G.pickups=G.pickups.filter(pk=>pk.alive);
@@ -1289,6 +1315,35 @@ function renderMinimap(ctx,W,H){
 }
 
 // ══════════════════════════════
+// TOPLIST (localStorage)
+// ══════════════════════════════
+function getToplist(){
+  try{return JSON.parse(localStorage.getItem('georift_top')||'[]');}catch(e){return[];}
+}
+function saveToToplist(entry){
+  let list=getToplist();
+  list.push(entry);
+  list.sort((a,b)=>b.score-a.score);
+  list=list.slice(0,10);
+  try{localStorage.setItem('georift_top',JSON.stringify(list));}catch(e){}
+  return list;
+}
+function renderToplist(containerId,myScore){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  const list=getToplist();
+  if(!list.length){el.innerHTML='';return;}
+  const rows=list.map((e,i)=>{
+    const isMe=e._isNew;
+    return `<div class="toplist-row${isMe?' tl-you':''}"><span class="tl-rank">${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span><span class="tl-score">${e.score.toLocaleString()}</span><span class="tl-info">Lv${e.level} · F${e.floor} · ${e.kills}☠</span></div>`;
+  }).join('');
+  el.innerHTML=`<div class="toplist-box"><div class="toplist-title">◈ EN İYİ SKORLAR</div>${rows}</div>`;
+  // _isNew bayrağını temizle
+  const clean=list.map(e=>{const c={...e};delete c._isNew;return c;});
+  try{localStorage.setItem('georift_top',JSON.stringify(clean));}catch(e){}
+}
+
+// ══════════════════════════════
 // GAME OVER with revive
 // ══════════════════════════════
 function tryGameOver(){
@@ -1301,14 +1356,18 @@ function tryGameOver(){
   document.getElementById('goScore').textContent=G.player.score;
   document.getElementById('goKills').textContent=G.player.kills;
   document.getElementById('goLevel').textContent=G.player.level;
-  setTimeout(()=>showScreen('goScreen'),700);
+  // Toplist'e kaydet
+  saveToToplist({score:G.player.score,level:G.player.level,floor:G.floor,kills:G.player.kills,_isNew:true});
+  setTimeout(()=>{showScreen('goScreen');renderToplist('goToplist',G.player.score);},700);
 }
 
 function doVictory(){
   G.running=false;document.getElementById('bossHpBar').classList.remove('show');
   document.getElementById('vcFloor').textContent=G.floor;document.getElementById('vcScore').textContent=G.player.score;
   document.getElementById('vcKills').textContent=G.player.kills;document.getElementById('vcLevel').textContent=G.player.level;
+  saveToToplist({score:G.player.score,level:G.player.level,floor:G.floor,kills:G.player.kills,_isNew:true});
   showScreen('victoryScreen');
+  renderToplist('vcToplist',G.player.score);
 }
 
 window.addEventListener('resize',()=>{if(G.canvas){G.W=window.innerWidth;G.H=window.innerHeight;G.canvas.width=G.W;G.canvas.height=G.H;}});
