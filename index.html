@@ -17,8 +17,8 @@
   --tx:#e0e8ff;--tx2:#7a8aaa;--br:rgba(0,245,255,0.2);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
-body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;overflow:hidden;width:100vw;height:100vh;}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;}
+body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;overflow:hidden;width:100vw;height:100vh;position:fixed;/* iOS scroll fix */}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
 .screen.active{display:flex;}
 
 /* LOADING */
@@ -31,11 +31,11 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* TITLE */
 #titleScreen{background:var(--bg);overflow:hidden;}
 #bgCanvas{position:absolute;inset:0;}
-.title-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px;}
+.title-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:max(env(safe-area-inset-top,0px),20px) 20px max(env(safe-area-inset-bottom,0px),20px);width:100%;max-width:360px;}
 .logo{font-size:3.2rem;font-weight:900;letter-spacing:.3em;color:transparent;background:linear-gradient(135deg,var(--c),var(--c3),var(--c2));-webkit-background-clip:text;background-clip:text;animation:glow 3s ease-in-out infinite;}
 .sub{font-size:.75rem;letter-spacing:.5em;color:var(--c);opacity:.7;}
 @keyframes glow{0%,100%{filter:drop-shadow(0 0 8px rgba(0,245,255,.5));}50%{filter:drop-shadow(0 0 28px rgba(0,245,255,.9));}}
-.btn{padding:13px 32px;border:1px solid var(--c);background:rgba(0,245,255,.05);color:var(--c);font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.2em;cursor:pointer;border-radius:2px;transition:all .2s;text-transform:uppercase;}
+.btn{padding:13px 32px;border:1px solid var(--c);background:rgba(0,245,255,.05);color:var(--c);font-family:'Courier New',monospace;font-size:.85rem;letter-spacing:.2em;cursor:pointer;border-radius:4px;transition:all .2s;text-transform:uppercase;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .btn:active{background:rgba(0,245,255,.2);transform:scale(.97);}
 .btn.pri{background:rgba(0,245,255,.1);box-shadow:0 0 20px rgba(0,245,255,.3);}
 .btn.pur{border-color:var(--c3);color:var(--c3);}
@@ -46,26 +46,35 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 #gameCanvas{display:block;touch-action:none;position:absolute;top:0;left:0;}
 
 /* HUD - simplified, no skill buttons */
-.hud{position:absolute;top:0;left:0;right:0;padding:6px 12px;display:flex;align-items:center;gap:10px;background:rgba(5,8,16,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--br);z-index:20;height:50px;}
-.bar-wrap{display:flex;flex-direction:column;gap:2px;}
-.bar-lbl{font-size:.5rem;color:var(--tx2);letter-spacing:.1em;}
-.bar-row{display:flex;align-items:center;gap:4px;}
-.bar{height:7px;border-radius:2px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:2px;transition:width .25s;}
-.hp-fill{background:linear-gradient(90deg,var(--c2),#ff6b6b);}
+.hud{
+  position:absolute;top:0;left:0;right:0;
+  padding:env(safe-area-inset-top, 0px) 14px 10px 14px;
+  padding-top:max(env(safe-area-inset-top,0px), 14px);
+  display:flex;align-items:center;gap:10px;
+  background:rgba(5,8,16,.96);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--br);z-index:20;
+  min-height:calc(54px + env(safe-area-inset-top,0px));
+}
+.bar-wrap{display:flex;flex-direction:column;gap:3px;}
+.bar-lbl{font-size:.52rem;color:var(--tx2);letter-spacing:.08em;font-weight:600;}
+.bar-row{display:flex;align-items:center;gap:5px;}
+.bar{height:9px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.06);}
+.bar-fill{height:100%;border-radius:4px;transition:width .2s;}
+.hp-fill{background:linear-gradient(90deg,#e00,#ff6b6b);}
 .mp-fill{background:linear-gradient(90deg,var(--c3),var(--c));}
 .xp-fill{background:linear-gradient(90deg,var(--c4),#fff);}
-.bar-val{font-size:.62rem;min-width:26px;text-align:right;}
+.bar-val{font-size:.68rem;min-width:30px;text-align:right;font-weight:700;}
 .hud-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;}
-.hud-floor{font-size:.8rem;color:var(--c);letter-spacing:.2em;}
-.hud-score{font-size:.6rem;color:var(--c4);}
-.hud-lv{font-size:.58rem;color:var(--tx2);}
+.hud-floor{font-size:.78rem;color:var(--c);letter-spacing:.15em;font-weight:700;}
+.hud-score{font-size:.56rem;color:var(--c4);}
+.hud-lv{font-size:.52rem;color:var(--tx2);}
 .hud-right{display:flex;align-items:center;gap:6px;}
-.hud-skill-btn{width:38px;height:38px;border-radius:6px;border:1px solid rgba(0,245,255,.3);background:rgba(0,245,255,.05);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;position:relative;}
-.hud-skill-btn:active{transform:scale(.9);}
+.hud-skill-btn{width:40px;height:40px;border-radius:8px;border:1px solid rgba(0,245,255,.35);background:rgba(0,245,255,.07);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;}
+.hud-skill-btn:active{transform:scale(.88);background:rgba(0,245,255,.2);}
 
 /* BOSS HP */
-#bossHpBar{position:absolute;top:55px;left:50%;transform:translateX(-50%);width:82%;max-width:380px;z-index:25;display:none;}
+#bossHpBar{position:absolute;top:calc(55px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:82%;max-width:380px;z-index:25;display:none;}
 #bossHpBar.show{display:block;}
 .boss-hp-label{text-align:center;font-size:.7rem;letter-spacing:.2em;margin-bottom:4px;color:var(--c4);text-shadow:0 0 10px var(--c4);}
 .boss-hp-track{height:12px;background:rgba(255,0,0,.12);border:1px solid rgba(255,100,0,.4);border-radius:3px;overflow:hidden;}
@@ -74,25 +83,36 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* JOYSTICK - dynamic, appears where you touch */
 #joystickBase{width:100px;height:100px;border-radius:50%;background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.15);position:absolute;pointer-events:none;display:none;z-index:20;transform:translate(-50%,-50%);}
 #joystickKnob{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,.6),rgba(0,245,255,.1));border:2px solid var(--c);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 14px rgba(0,245,255,.4);}
-#touchZone{position:absolute;left:0;top:50px;right:0;bottom:65px;z-index:15;touch-action:none;}
+#touchZone{position:absolute;left:0;top:calc(54px + env(safe-area-inset-top,0px));right:0;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:15;touch-action:none;}
 
 /* SKILL MINI BUTTONS - sağ alt, küçük */
-.skill-mini-btns{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;align-items:center;z-index:20;}
-.mini-btn{width:42px;height:42px;border-radius:8px;border:1.5px solid;display:flex;align-items:center;justify-content:center;font-size:1.0rem;position:relative;overflow:hidden;cursor:pointer;background:rgba(5,8,16,.7);}
+.skill-mini-btns{
+  position:absolute;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  right:14px;
+  display:flex;gap:8px;align-items:center;z-index:20;
+}
+.mini-btn{
+  width:52px;height:52px;border-radius:12px;border:2px solid;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:1.2rem;position:relative;overflow:hidden;cursor:pointer;
+  background:rgba(5,8,16,.82);
+  -webkit-tap-highlight-color:transparent;
+}
 .mini-btn:active{transform:scale(.85);}
-.cd-text{position:absolute;bottom:1px;font-size:.42rem;color:#fff;letter-spacing:.02em;}
-.dash-act{border-color:var(--c);box-shadow:0 0 8px rgba(0,245,255,.2);}
-.sk1-act{border-color:var(--c2);}
-.sk2-act{border-color:var(--c3);}
-.sk3-act{border-color:var(--c4);}
+.cd-text{font-size:.44rem;color:#ffffffcc;margin-top:1px;line-height:1;}
+.dash-act{border-color:var(--c);box-shadow:0 0 10px rgba(0,245,255,.25);}
+.sk1-act{border-color:var(--c2);box-shadow:0 0 8px rgba(255,0,110,.2);}
+.sk2-act{border-color:var(--c3);box-shadow:0 0 8px rgba(123,47,255,.2);}
+.sk3-act{border-color:var(--c4);box-shadow:0 0 8px rgba(255,190,11,.2);}
 
 /* CARD LEVEL UP - full revamp */
-#lvModal{position:fixed;inset:0;background:rgba(2,4,14,.96);z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px);}
+#lvModal{position:fixed;inset:0;background:rgba(2,4,14,.97);z-index:60;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:max(env(safe-area-inset-top,0px),40px);padding-bottom:max(env(safe-area-inset-bottom,0px),20px);overflow-y:auto;-webkit-overflow-scrolling:touch;backdrop-filter:blur(8px);gap:12px;}
 #lvModal.open{display:flex;animation:fadeIn .3s ease-out;}
 @keyframes fadeIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
 .lv-title{font-size:1.3rem;letter-spacing:.4em;color:var(--c4);text-shadow:0 0 20px var(--c4);animation:glow 1.2s infinite;}
 .lv-sub{font-size:.6rem;color:var(--tx2);letter-spacing:.25em;}
-.lv-cards{display:flex;flex-direction:column;gap:10px;width:92%;max-width:360px;}
+.lv-cards{display:flex;flex-direction:column;gap:10px;width:94%;max-width:380px;}
 .lv-card{border:1px solid;background:var(--bg2);padding:14px 12px;border-radius:6px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .lv-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
 .lv-card:active{transform:scale(.97);}
@@ -122,6 +142,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* SKILL MODAL */
 #skillModal{position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:50;display:none;flex-direction:column;overflow:hidden;}
 #skillModal.open{display:flex;}
+.sk-content{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;}
 .m-head{padding:12px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);}
 .m-title{font-size:.9rem;letter-spacing:.3em;color:var(--c);}
 .m-close{width:32px;height:32px;border:1px solid var(--br);background:transparent;color:var(--tx2);font-size:1rem;cursor:pointer;border-radius:2px;}
@@ -146,7 +167,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .sp-val{font-size:.9rem;color:var(--c);font-weight:bold;}
 
 /* BOSS INTRO */
-#bossIntro{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+#bossIntro{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:max(env(safe-area-inset-top,0px),20px) 20px max(env(safe-area-inset-bottom,0px),20px);}
 #bossIntro.show{display:flex;animation:fadeIn .4s ease-out;}
 .boss-intro-name{font-size:1.8rem;letter-spacing:.3em;color:var(--c4);text-shadow:0 0 30px var(--c4);animation:glow 1s infinite;}
 .boss-intro-title{font-size:.7rem;color:var(--c2);letter-spacing:.4em;}
@@ -163,7 +184,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .tl-info{color:var(--tx2);font-size:.52rem;}
 .tl-you{background:rgba(0,245,255,.07);border-radius:2px;}
 /* GAME OVER */
-#goScreen{background:var(--bg);z-index:80;}
+#goScreen{background:var(--bg);z-index:80;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:max(env(safe-area-inset-top,0px),20px);padding-bottom:max(env(safe-area-inset-bottom,0px),20px);}
 .go-title{font-size:2rem;letter-spacing:.5em;color:var(--c2);margin-bottom:4px;animation:glow 1.5s infinite;}
 .go-sub{font-size:.6rem;color:var(--tx2);letter-spacing:.3em;margin-bottom:18px;}
 .go-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;width:82%;max-width:280px;}
@@ -177,7 +198,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .vc-title{font-size:1.6rem;letter-spacing:.4em;color:var(--c5);animation:glow 1.5s infinite;}
 
 /* CLEAR BANNER */
-#clearBanner{position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);padding:10px 22px;font-size:.8rem;letter-spacing:.3em;z-index:25;pointer-events:none;opacity:0;transition:opacity .3s;border-radius:2px;}
+#clearBanner{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);padding:10px 22px;font-size:.8rem;letter-spacing:.3em;z-index:25;pointer-events:none;opacity:0;transition:opacity .3s;border-radius:2px;}
 #clearBanner.show{opacity:1;}
 #clearBanner.normal{background:rgba(6,214,160,.1);border:1px solid var(--c5);color:var(--c5);}
 #clearBanner.boss-clear{background:rgba(255,190,11,.1);border:1px solid var(--c4);color:var(--c4);font-size:.95rem;}
@@ -252,20 +273,17 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="bar-wrap">
       <div class="bar-lbl">HP</div>
       <div class="bar-row">
-        <div class="bar" style="width:68px"><div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div></div>
-        <div class="bar-val" id="hpVal" style="color:var(--c2)">100</div>
+        <div class="bar" style="width:80px"><div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div></div>
+        <div class="bar-val" id="hpVal" style="color:#ff6b6b">100</div>
       </div>
-    </div>
-    <div class="bar-wrap">
-      <div class="bar-lbl">MP</div>
-      <div class="bar-row">
-        <div class="bar" style="width:48px"><div class="bar-fill mp-fill" id="mpBar" style="width:100%"></div></div>
-        <div class="bar-val" id="mpVal" style="color:var(--c3)">50</div>
+      <div class="bar-row" style="margin-top:2px;">
+        <div class="bar" style="width:80px"><div class="bar-fill mp-fill" id="mpBar" style="width:100%"></div></div>
+        <div class="bar-val" id="mpVal" style="color:#7b8fff">50</div>
       </div>
-    </div>
-    <div class="bar-wrap">
-      <div class="bar-lbl">XP</div>
-      <div class="bar-row"><div class="bar" style="width:42px"><div class="bar-fill xp-fill" id="xpBar" style="width:0%"></div></div></div>
+      <div class="bar-row" style="margin-top:2px;">
+        <div class="bar" style="width:80px;height:5px;"><div class="bar-fill xp-fill" id="xpBar" style="width:0%"></div></div>
+        <div style="font-size:.46rem;color:var(--tx2);min-width:30px;text-align:right;" id="xpLbl">XP</div>
+      </div>
     </div>
     <div class="hud-mid">
       <div class="hud-floor" id="floorTxt">KAT 1</div>
@@ -289,13 +307,12 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 
   <div id="clearBanner" class="normal"></div>
 
-  <!-- Right action buttons -->
-  <!-- Küçük skill butonları sağ alt -->
-  <div class="skill-mini-btns">
+  <!-- Skill butonları — element seçilince dinamik güncellenir -->
+  <div class="skill-mini-btns" id="skillBtnsArea">
     <div class="mini-btn dash-act" onclick="playerDash()">💨<div class="cd-text" id="bcdD"></div></div>
-    <div class="mini-btn sk1-act" onclick="playerSkill(1)">🔥<div class="cd-text" id="bcd1"></div></div>
-    <div class="mini-btn sk2-act" onclick="playerSkill(2)">❄️<div class="cd-text" id="bcd2"></div></div>
-    <div class="mini-btn sk3-act" onclick="playerSkill(3)">⚡<div class="cd-text" id="bcd3"></div></div>
+    <div class="mini-btn sk1-act" id="sk1Btn" onclick="playerSkill(1)">🔥<div class="cd-text" id="bcd1"></div></div>
+    <div class="mini-btn sk2-act" id="sk2Btn" onclick="playerSkill(2)">❄️<div class="cd-text" id="bcd2"></div></div>
+    <div class="mini-btn sk3-act" id="sk3Btn" onclick="playerSkill(3)">⚡<div class="cd-text" id="bcd3"></div></div>
   </div>
 </div>
 
@@ -396,18 +413,27 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 </div>
 
 <!-- PAUSE OVERLAY -->
-<div id="pauseOverlay" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.93);z-index:90;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px);">
-  <div style="font-size:1.8rem;letter-spacing:.5em;color:var(--c);animation:glow 1.5s infinite">⏸ DURAKLATILDI</div>
-  <div style="font-size:.6rem;color:var(--tx2);letter-spacing:.3em;">OYUN DURAKLADI</div>
-  <button class="btn pri" onclick="togglePause()">▶ DEVAM ET</button>
-  <button class="btn" onclick="toggleSkillModal()">◈ YETENEK AĞACI</button>
-  <button class="btn" onclick="showTitle()">⌂ ANA MENÜ</button>
-  <div id="pauseMusicInfo" style="font-size:.52rem;color:var(--tx2);letter-spacing:.1em;margin-top:6px;"></div>
-  <div style="display:flex;gap:14px;align-items:center;margin-top:4px;">
-    <span style="font-size:.58rem;color:var(--tx2);">🔊 SES:</span>
-    <button class="btn" style="padding:6px 14px;font-size:.65rem;" onclick="toggleSound()">🔊 AÇIK</button>
-    <span style="font-size:.58rem;color:var(--tx2);">🎵 MÜZİK:</span>
-    <button class="btn" style="padding:6px 14px;font-size:.65rem;" onclick="toggleMusic()">🎵 AÇIK</button>
+<div id="pauseOverlay" style="display:none;position:fixed;inset:0;background:rgba(3,5,14,.96);z-index:90;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);">
+  <!-- Üst bar -->
+  <div style="padding:max(env(safe-area-inset-top,0px),16px) 16px 12px;background:rgba(0,245,255,.04);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:1rem;letter-spacing:.3em;color:var(--c);">⏸ DURAKLADI</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" style="padding:5px 12px;font-size:.6rem;" onclick="toggleSound()" id="pauseSfxBtn">🔊 SES</button>
+      <button class="btn" style="padding:5px 12px;font-size:.6rem;" onclick="toggleMusic()" id="pauseMusicBtn">🎵 MÜZİK</button>
+    </div>
+  </div>
+  <!-- İçerik: Kazanılan yetenekler -->
+  <div style="flex:1;overflow-y:auto;padding:12px;">
+    <div style="font-size:.6rem;color:var(--c4);letter-spacing:.2em;margin-bottom:8px;">⚡ KAZANILAN YETENEKLERİN</div>
+    <div id="pauseSkillList" style="display:flex;flex-direction:column;gap:4px;"></div>
+    <div style="margin-top:12px;font-size:.6rem;color:var(--tx2);letter-spacing:.1em;" id="pauseElemInfo"></div>
+  </div>
+  <!-- Alt butonlar -->
+  <div style="padding:12px 16px;padding-bottom:max(env(safe-area-inset-bottom,0px),12px);background:rgba(0,245,255,.04);border-top:1px solid var(--br);display:flex;flex-direction:column;gap:8px;">
+    <button class="btn pri" onclick="togglePause()" style="font-size:.85rem;padding:12px;">▶ DEVAM ET</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="showTitle()" style="flex:1;font-size:.68rem;">⌂ ANA MENÜ</button>
+    </div>
   </div>
 </div>
 
@@ -782,7 +808,7 @@ function spawnBoss(){
     for(let i=0;i<4;i++) boss.orbits.push({angle:i/4*Math.PI*2,r:75,speed:0.03,alive:true,dmg:boss.atk*.4});
   }
   G.boss=boss;G.enemies.push(boss);G.bossActive=true;G.bossPhase=0;
-  document.getElementById('bossHpBar').classList.add('show');
+  const bBar=document.getElementById('bossHpBar');if(bBar){bBar.classList.add('show');bBar.style.top='calc('+(document.querySelector('.hud').offsetHeight||60)+'px + 6px)';}
   document.getElementById('bossHpLabel').textContent=def.icon+' '+def.name;
   updateBossHpBar();
   AU.boss();
@@ -945,11 +971,11 @@ function startBgAnim(){
 // ══════════════════════════════
 // Eski skill tree UI kaldırıldı — element sistemi kullanılıyor
 function toggleSkillModal(){
-  // Artık kazanılan yetenekler listesi gösteriyoruz
+  // Kazanılan yetenekler listesi
   const m=document.getElementById('skillModal');
   const wasOpen=m.classList.contains('open');
   m.classList.toggle('open');
-  if(!wasOpen) renderGainedSkills();
+  if(!wasOpen){renderGainedSkills();}
   if(G.running&&!G.gameOver){
     G.paused=m.classList.contains('open');
     if(!G.paused)G.lastTime=performance.now();
@@ -1121,6 +1147,13 @@ function togglePause(){
     if(btn)btn.textContent='▶';
     AU.pauseMusic();
     G.lastTime=0;
+    // Kazanılan yetenekleri doldur
+    renderPauseSkills();
+    // Ses/müzik butonlarını güncelle
+    const sfxb=document.getElementById('pauseSfxBtn');
+    const musb=document.getElementById('pauseMusicBtn');
+    if(sfxb)sfxb.textContent=AU.soundOn?'🔊 SES':'🔇 SES';
+    if(musb)musb.textContent=AU.musicOn?'🎵 MÜZİK':'🔇 MÜZİK';
   }else{
     ov.style.display='none';
     if(btn)btn.textContent='⏸';
@@ -1128,15 +1161,46 @@ function togglePause(){
     G.lastTime=performance.now();
   }
 }
+function renderPauseSkills(){
+  const skills=G.elemSkillsGained||[];
+  const cont=document.getElementById('pauseSkillList');
+  const info=document.getElementById('pauseElemInfo');
+  if(!cont)return;
+  // Element bilgisi
+  const selElems=(G.selectedElements||[]).map(id=>ELEMENTS.find(e=>e.id===id));
+  if(info) info.textContent='Elementlerin: '+selElems.map(e=>e?e.icon+' '+e.name:'').join(' + ');
+  if(!skills.length){
+    cont.innerHTML='<div style="color:var(--tx2);font-size:.62rem;padding:16px 0;text-align:center;">Henüz yetenek kazanılmadı.<br>Seviye atlayınca kart seçerek kazan!</div>';
+    return;
+  }
+  // Rarity renkleri
+  const rCol={common:'#7a8aaa',rare:'#4cc9f0',epic:'#b388ff',legendary:'#ffd700'};
+  const rLbl={common:'YAYGIN',rare:'NADİR',epic:'EPİK',legendary:'EFSANE'};
+  cont.innerHTML=skills.map(sk=>{
+    const el=sk.elem;const r=sk.r||'common';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.04);border-radius:6px;border-left:3px solid ${rCol[r]||'#444'};">
+      <span style="font-size:1.1rem;">${sk.i}</span>
+      <div style="flex:1;">
+        <div style="font-size:.65rem;color:var(--tx);font-weight:600;">${sk.n}</div>
+        <div style="font-size:.5rem;color:${el?el.col:'var(--tx2)'};">${el?el.icon+' '+el.name:''}</div>
+      </div>
+      <div style="font-size:.46rem;color:${rCol[r]||'#666'};letter-spacing:.05em;">${rLbl[r]||r}</div>
+    </div>`;
+  }).join('');
+}
 function toggleSound(){
   AU.toggleSound();
-  const btn=document.querySelector('#pauseOverlay button[onclick="toggleSound()"]');
-  if(btn)btn.textContent=AU.soundOn?'🔊 AÇIK':'🔇 KAPALI';
+  const btn=document.getElementById('pauseSfxBtn');
+  if(btn)btn.textContent=AU.soundOn?'🔊 SES':'🔇 SES';
+  const sb=document.getElementById('sfxToggleBtn');
+  if(sb)sb.textContent=AU.soundOn?'AÇIK':'KAPALI';
 }
 function toggleMusic(){
   AU.toggleMusic();
-  const btn=document.querySelector('#pauseOverlay button[onclick="toggleMusic()"]');
-  if(btn)btn.textContent=AU.musicOn?'🎵 AÇIK':'🎵 KAPALI';
+  const btn=document.getElementById('pauseMusicBtn');
+  if(btn)btn.textContent=AU.musicOn?'🎵 MÜZİK':'🔇 MÜZİK';
+  const mb=document.getElementById('musicToggleBtn');
+  if(mb)mb.textContent=AU.musicOn?'AÇIK':'KAPALI';
 }
 
 // ==============================================================
@@ -1238,8 +1302,17 @@ function startGame(){
   G._stars=null;G._meteors=[];G._magnetActive=0;G._galaxyNebulae=null;
   G.camera={x:WORLD_W/2-G.W/2,y:WORLD_H/2-G.H/2};
   generateWorld();spawnWave();setupControls();showScreen('gameScreen');
+  // Skill buton ikonlarını seçilen elementlerle güncelle
+  const selElems=(G.selectedElements||['fire','ice']).map(id=>ELEMENTS.find(e=>e.id===id));
+  const skIcons=['🔥','❄️','⚡'];
+  selElems.forEach((el,i)=>{
+    const btn=document.getElementById('sk'+(i+1)+'Btn');
+    if(btn&&el) btn.childNodes[0].textContent=el.icon;
+  });
   G.running=true;G.lastTime=performance.now();gameLoop();
-  updateHUD();showMsg('◈ GEORIFT · '+playerName+'! Kart seçiminde SP kazan!');
+  updateHUD();
+  const elemNames=(G.selectedElements||[]).map(id=>ELEMENTS.find(e=>e.id===id)?.icon||'').join('');
+  showMsg('◈ '+playerName+' '+elemNames+' seçti! Savaş başlıyor!');
   AU.resumeMusic();
 }
 
@@ -1493,6 +1566,8 @@ function updateHUD(){
   document.getElementById('mpBar').style.width=(p.mp/p.maxMp*100)+'%';
   document.getElementById('mpVal').textContent=Math.ceil(p.mp);
   document.getElementById('xpBar').style.width=(p.xp/p.xpNext*100)+'%';
+  const xpLbl=document.getElementById('xpLbl');
+  if(xpLbl)xpLbl.textContent='LV'+p.level;
   const bossCount=G.bossKillThisFloor||0;
   document.getElementById('floorTxt').textContent='KAT '+G.floor+(G.bossActive?' 👹':' ['+bossCount+'/3]');
   document.getElementById('scoreTxt').textContent=p.score+' PTS · 💰'+(p.gold||0);
@@ -1504,7 +1579,7 @@ function updateHUD(){
 
 function showMsg(txt){
   const m=document.createElement('div');
-  m.style.cssText='position:fixed;bottom:170px;left:50%;transform:translateX(-50%);background:rgba(5,8,16,.92);border:1px solid rgba(0,245,255,.3);padding:6px 14px;font-size:.68rem;color:#00f5ff;z-index:100;border-radius:3px;pointer-events:none;letter-spacing:.1em;white-space:nowrap;';
+  m.style.cssText='position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(5,8,16,.92);border:1px solid rgba(0,245,255,.3);padding:8px 16px;font-size:.7rem;color:#00f5ff;z-index:100;border-radius:4px;pointer-events:none;letter-spacing:.08em;white-space:nowrap;max-width:85vw;text-align:center;';
   m.textContent=txt;document.body.appendChild(m);setTimeout(()=>m.remove(),2200);
 }
 
