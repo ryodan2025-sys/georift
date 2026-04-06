@@ -18,7 +18,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
 body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;overflow:hidden;width:100vw;height:100vh;position:fixed;/* iOS scroll fix */}
-.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;width:100%;height:100%;}
 .screen.active{display:flex;}
 
 /* LOADING */
@@ -42,8 +42,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .btn.red{border-color:var(--c2);color:var(--c2);}
 
 /* GAME */
-#gameScreen{background:var(--bg);flex-direction:column;justify-content:flex-start;}
-#gameCanvas{display:block;touch-action:none;position:absolute;top:0;left:0;will-change:transform;}
+#gameScreen{background:var(--bg);flex-direction:column;justify-content:flex-start;position:absolute;inset:0;}
+#gameCanvas{display:block;touch-action:none;position:absolute;top:0;left:0;width:100%;height:100%;will-change:transform;}
 
 /* HUD - simplified, no skill buttons */
 .hud{
@@ -81,9 +81,9 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .boss-hp-fill{height:100%;background:linear-gradient(90deg,#c1121f,#ff6b35,#ffd700);transition:width .15s;border-radius:3px;}
 
 /* JOYSTICK - dynamic, appears where you touch */
-#joystickBase{width:100px;height:100px;border-radius:50%;background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.15);position:absolute;pointer-events:none;display:none;z-index:20;transform:translate(-50%,-50%);}
-#joystickKnob{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,.6),rgba(0,245,255,.1));border:2px solid var(--c);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 14px rgba(0,245,255,.4);}
-#touchZone{position:absolute;left:0;top:calc(56px + env(safe-area-inset-top,0px));right:0;bottom:env(safe-area-inset-bottom,0px);z-index:15;touch-action:none;}
+#joystickBase{width:110px;height:110px;border-radius:50%;background:rgba(0,245,255,.05);border:1.5px solid rgba(0,245,255,.2);position:absolute;pointer-events:none;display:none;z-index:16;transform:translate(-50%,-50%);}
+#joystickKnob{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,.7),rgba(0,245,255,.15));border:2px solid var(--c);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 18px rgba(0,245,255,.5);}
+#touchZone{position:absolute;left:0;top:0;right:0;bottom:0;z-index:15;touch-action:none;}
 
 /* SKILL MINI BUTTONS - sağ alt, küçük */
 /* skill-mini-btns kaldırıldı */
@@ -375,29 +375,36 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 </div>
 
 <!-- SETTINGS MODAL -->
-<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:85;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-  <div style="font-size:1.1rem;letter-spacing:.4em;color:var(--c);">⚙ AYARLAR</div>
-  <div style="width:82%;max-width:300px;background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:.75rem;color:var(--tx);">🔊 SES EFEKTLERİ</span>
-      <button id="sfxToggleBtn" class="btn" style="padding:6px 16px;font-size:.7rem;" onclick="settingsToggleSound()">AÇIK</button>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:.75rem;color:var(--tx);">🎵 FON MÜZİĞİ</span>
-      <button id="musicToggleBtn" class="btn" style="padding:6px 16px;font-size:.7rem;" onclick="settingsToggleMusic()">AÇIK</button>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:.75rem;color:var(--tx);">👤 İSİM</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span id="settingsNameDisplay" style="font-size:.75rem;color:var(--c);">-</span>
-        <button class="btn" style="font-size:.55rem;padding:4px 8px;" onclick="changeName()">DEĞİŞTİR</button>
+<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:85;flex-direction:column;overflow:hidden;">
+  <div style="padding:max(env(safe-area-inset-top,0px),14px) 14px 12px;background:var(--bg2);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:.9rem;letter-spacing:.3em;color:var(--c);">⚙ AYARLAR</div>
+    <button class="m-close" onclick="closeSettings()">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;display:flex;flex-direction:column;gap:14px;">
+    <div style="background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.75rem;color:var(--tx);">🔊 SES EFEKTLERİ</span>
+        <button id="sfxToggleBtn" class="btn" style="padding:6px 16px;font-size:.7rem;" onclick="settingsToggleSound()">AÇIK</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.75rem;color:var(--tx);">🎵 FON MÜZİĞİ</span>
+        <button id="musicToggleBtn" class="btn" style="padding:6px 16px;font-size:.7rem;" onclick="settingsToggleMusic()">AÇIK</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.75rem;color:var(--tx);">👤 İSİM</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="settingsNameDisplay" style="font-size:.75rem;color:var(--c);">-</span>
+          <button class="btn" style="font-size:.55rem;padding:4px 8px;" onclick="changeName()">DEĞİŞTİR</button>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--br);padding-top:10px;">
+        <button class="btn red" style="width:100%;font-size:.65rem;" onclick="clearToplist()">🗑 TOPLIST'İ SİL</button>
       </div>
     </div>
-    <div style="border-top:1px solid var(--br);padding-top:10px;">
-      <button class="btn red" style="width:100%;font-size:.65rem;" onclick="clearToplist()">🗑 TOPLIST'İ SİL</button>
-    </div>
   </div>
-  <button class="btn" onclick="closeSettings()">✕ KAPAT</button>
+  <div style="padding:12px 16px;padding-bottom:max(env(safe-area-inset-bottom,0px),12px);background:rgba(0,245,255,.04);border-top:1px solid var(--br);">
+    <button class="btn pri" onclick="closeSettings()" style="width:100%;font-size:.8rem;padding:11px;">✕ KAPAT</button>
+  </div>
 </div>
 
 <!-- KOZMETİK SHOP MODAL -->
@@ -1032,8 +1039,14 @@ function renderGainedSkills(){
 // SCREENS
 // ══════════════════════════════
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='';});
-  const el=document.getElementById(id);el.classList.add('active');el.style.display='flex';
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+    s.style.display='none';
+  });
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.style.display='flex';
+  el.classList.add('active');
 }
 function showTitle(){G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);document.getElementById('skillModal').classList.remove('open');document.getElementById('bossIntro').classList.remove('show');document.getElementById('bossHpBar').classList.remove('show');document.getElementById('pauseOverlay').style.display='none';showScreen('titleScreen');}
 function showTitleToplist(){
@@ -1180,7 +1193,7 @@ function togglePause(){
     ov.style.display='none';
     if(btn)btn.textContent='⏸';
     AU.resumeMusic();
-    G.lastTime=performance.now();
+    G.lastTime=performance.now(); // Freeze dt sonrası sıfırla
   }
 }
 function renderPauseSkills(){
@@ -1313,69 +1326,122 @@ function startGame(){
   document.getElementById('lvModal').classList.remove('open');
   document.getElementById('bossIntro').classList.remove('show');
   document.getElementById('bossHpBar').classList.remove('show');
-  G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);
+  G.running=false;
+  if(G.frameId){cancelAnimationFrame(G.frameId);G.frameId=null;}
+
+  // 1. Önce ekranı göster (canvas DOM'da görünür olsun)
+  showScreen('gameScreen');
+
+  // 2. Canvas boyutunu ayarla
   const canvas=document.getElementById('gameCanvas');
-  G.canvas=canvas;if(!G.ctx||G.ctx.canvas!==canvas)G.ctx=canvas.getContext('2d',{alpha:false});
+  G.canvas=canvas;
   G.W=window.innerWidth;G.H=window.innerHeight;
   canvas.width=G.W;canvas.height=G.H;
-  G.player={x:WORLD_W/2,y:WORLD_H/2,hp:100,maxHp:100,mp:50,maxMp:50,xp:0,xpNext:150,level:1,sp:0,speed:2.2,atk:14,def:5,vx:0,vy:0,invincible:0,kills:0,score:0,hpRegen:0,autoFireCd:0,autoFireRate:30,extraBullets:0,range:1,dashCd:0,dashMaxCd:90,sk1Cd:0,sk1MaxCd:320,sk2Cd:0,sk2MaxCd:260,sk3Cd:0,sk3MaxCd:500,lifesteal:0,critChance:.10,critMult:2,fireLv:0,iceLv:0,thunderLv:0,hasRevive:false,gold:0,goldMult:1,dodgeChance:0,dmgReduction:0,mpRegenMult:1,bulletSpeed:1};
+  G.ctx=canvas.getContext('2d',{alpha:false});
+
+  // 3. Oyun state'ini sıfırla
+  G.player={
+    x:WORLD_W/2, y:WORLD_H/2,
+    hp:100, maxHp:100, mp:50, maxMp:50,
+    xp:0, xpNext:150, level:1, sp:0,
+    speed:2.2, atk:14, def:5,
+    vx:0, vy:0, invincible:0,
+    kills:0, score:0, hpRegen:0,
+    autoFireCd:0, autoFireRate:30,
+    extraBullets:0, range:1,
+    dashCd:0, dashMaxCd:90,
+    sk1Cd:0, sk1MaxCd:320,
+    sk2Cd:0, sk2MaxCd:260,
+    sk3Cd:0, sk3MaxCd:500,
+    lifesteal:0, critChance:0.10, critMult:2,
+    fireLv:0, iceLv:0, thunderLv:0,
+    hasRevive:false,
+    gold:0, goldMult:1,
+    dodgeChance:0, dmgReduction:0,
+    mpRegenMult:1, bulletSpeed:1
+  };
   G.enemies=[];G.bullets=[];G.particles=[];G.pickups=[];
-  G.floor=1;G.wave=1;G.waveCleared=false;G.gameOver=false;G.bossIntroOpen=false;G.paused=false;
-  G.bossActive=false;G.boss=null;G.bossPhase=0;G.bossKillCount=0;G.bossKillThisFloor=0;
-  G.skillLevels={};G.sp=0;G.selectedElements=G.selectedElements||['fire','ice'];G.elemSkillsGained=[];
+  G.floor=1;G.wave=1;G.waveCleared=false;G.gameOver=false;
+  G.bossIntroOpen=false;G.paused=false;
+  G.bossActive=false;G.boss=null;G.bossPhase=0;
+  G.bossKillCount=0;G.bossKillThisFloor=0;
+  G.skillLevels={};G.sp=0;
+  G.selectedElements=G.selectedElements||['fire','ice'];
+  G.elemSkillsGained=[];
   G._stars=null;G._meteors=[];G._magnetActive=0;G._galaxyNebulae=null;
-  G.camera={x:WORLD_W/2-G.W/2,y:WORLD_H/2-G.H/2};
-  generateWorld();spawnWave();setupControls();showScreen('gameScreen');
-  // Skill buton ikonlarını seçilen elementlerle güncelle
-  const selElems=(G.selectedElements||['fire','ice']).map(id=>ELEMENTS.find(e=>e.id===id));
-  const skIcons=['🔥','❄️','⚡'];
-  selElems.forEach((el,i)=>{
-    const btn=document.getElementById('sk'+(i+1)+'Btn');
-    if(btn&&el) btn.childNodes[0].textContent=el.icon;
-  });
-  G.running=true;G.lastTime=performance.now();gameLoop();
+  G._shootingStars=[];
+  // Kamera: oyuncu merkezi ekranın ortasında
+  G.camera={x:WORLD_W/2-G.W/2, y:WORLD_H/2-G.H/2};
+
+  // 4. Dünya ve dalga
+  generateWorld();
+  spawnWave();
+
+  // 5. Kontroller (guard ile tekrar eklemeyi önle)
+  setupControls();
+
+  // 6. Game loop başlat
+  G.running=true;
+  G.lastTime=performance.now();
+  gameLoop();
   updateHUD();
+
   const elemNames=(G.selectedElements||[]).map(id=>ELEMENTS.find(e=>e.id===id)?.icon||'').join('');
-  showMsg('◈ '+playerName+' '+elemNames+' seçti! Savaş başlıyor!');
+  showMsg('◈ '+(playerName||'ANONIM')+' '+elemNames+' seçti! Savaş başlıyor!');
   AU.resumeMusic();
 }
 
 // ══════════════════════════════
 // DYNAMIC JOYSTICK CONTROLS
 // ══════════════════════════════
+let _controlsSetup=false;
 function setupControls(){
+  // Sadece bir kez kur — her startGame'de tekrar kurma
   const tz=document.getElementById('touchZone');
   const jb=document.getElementById('joystickBase');
   const jk=document.getElementById('joystickKnob');
-  const JR=48; // joystick radius
+  const JR=50;
 
   tz.ontouchstart=e=>{
     e.preventDefault();
+    if(!G.running||G.gameOver||G.paused)return;
     AU.init();
     const t=e.changedTouches[0];
+    // HUD alanına dokunmayı engelle (üst 70px + safe area)
+    const hudH=document.querySelector('.hud')?.offsetHeight||60;
+    if(t.clientY<hudH+4)return;
     G.joystick={active:true,id:t.identifier,cx:t.clientX,cy:t.clientY,dx:0,dy:0};
     jb.style.left=t.clientX+'px';jb.style.top=t.clientY+'px';
-    jb.style.display='block';jk.style.transform='translate(-50%,-50%)';
+    jb.style.display='block';
+    jk.style.transform='translate(-50%,-50%)';
   };
-  window.ontouchmove=e=>{
-    e.preventDefault();if(!G.joystick.active)return;
+
+  tz.ontouchmove=e=>{
+    e.preventDefault();
+    if(!G.joystick.active)return;
     for(const t of e.changedTouches){
       if(t.identifier===G.joystick.id){
         const dx=t.clientX-G.joystick.cx,dy=t.clientY-G.joystick.cy;
-        const d=Math.hypot(dx,dy);
-        G.joystick.dx=dx/Math.max(d,1)*Math.min(d/JR,1);
-        G.joystick.dy=dy/Math.max(d,1)*Math.min(d/JR,1);
+        const d=Math.hypot(dx,dy)||1;
+        G.joystick.dx=dx/d*Math.min(d/JR,1);
+        G.joystick.dy=dy/d*Math.min(d/JR,1);
         jk.style.transform=`translate(calc(-50% + ${G.joystick.dx*JR}px),calc(-50% + ${G.joystick.dy*JR}px))`;
       }
     }
   };
-  window.ontouchend=e=>{
+
+  tz.ontouchend=e=>{
     for(const t of e.changedTouches){
       if(G.joystick.active&&t.identifier===G.joystick.id){
         G.joystick.active=false;G.joystick.dx=0;G.joystick.dy=0;
         jb.style.display='none';
       }
     }
+  };
+
+  tz.ontouchcancel=e=>{
+    G.joystick.active=false;G.joystick.dx=0;G.joystick.dy=0;
+    jb.style.display='none';
   };
 }
 
@@ -1558,6 +1624,8 @@ function pickLv(i){
   document.getElementById('lvModal').classList.remove('open');
   G.paused=false;
   G.lastTime=performance.now();
+  // Eğer bir sonraki level-up da beklediyse, tekrar kontrol et
+  if(!G.gameOver&&G.running)checkLevelUp();
   updateHUD();
 }
 
@@ -1613,11 +1681,15 @@ function showMsg(txt){
 // GAME LOOP
 // ══════════════════════════════
 function gameLoop(){
-  if(!G.running)return;
+  if(!G.running){G.frameId=null;return;}
   G.frameId=requestAnimationFrame(gameLoop);
   const now=performance.now();
-  const dt=Math.min((now-G.lastTime)/16.67,2.5);G.lastTime=now;
-  if(!G.paused)update(dt);
+  // lastTime 0 ise veya çok büyük fark varsa sıfırla (tab gizlendi vs)
+  if(!G.lastTime||G.lastTime<=0)G.lastTime=now;
+  const raw=(now-G.lastTime)/16.67;
+  const dt=Math.min(raw>0?raw:1,2.5);
+  G.lastTime=now;
+  if(!G.paused&&!G.gameOver)update(dt);
   render();
 }
 
@@ -1736,6 +1808,11 @@ function update(dt){
 // RENDER
 // ══════════════════════════════
 function render(){
+  if(!G.ctx||!G.canvas)return;
+  // Canvas boyutu ekranla uyuşmuyorsa düzelt
+  if(G.canvas.width!==G.W||G.canvas.height!==G.H){
+    G.canvas.width=G.W;G.canvas.height=G.H;
+  }
   const ctx=G.ctx,W=G.W,H=G.H,cx=G.camera.x,cy=G.camera.y;
   ctx.fillStyle='#03050f';ctx.fillRect(0,0,W,H);
   const t=Date.now()*.001;
@@ -2177,7 +2254,15 @@ function doVictory(){
   renderToplist('vcToplist',G.player.score);
 }
 
-window.addEventListener('resize',()=>{if(G.canvas){G.W=window.innerWidth;G.H=window.innerHeight;G.canvas.width=G.W;G.canvas.height=G.H;}});
+window.addEventListener('resize',()=>{
+  if(G.canvas&&G.running){
+    G.W=window.innerWidth;G.H=window.innerHeight;
+    G.canvas.width=G.W;G.canvas.height=G.H;
+    // Kamera sınırlarını güncelle
+    G.camera.x=Math.max(0,Math.min(WORLD_W-G.W,G.camera.x));
+    G.camera.y=Math.max(0,Math.min(WORLD_H-G.H,G.camera.y));
+  }
+});
 
 // Service Worker
 if('serviceWorker' in navigator){
