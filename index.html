@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* TITLE */
 #titleScreen{background:var(--bg);overflow:hidden;}
 #bgCanvas{position:absolute;inset:0;}
-.title-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;padding:max(env(safe-area-inset-top,0px),20px) 20px max(env(safe-area-inset-bottom,0px),20px);width:100%;max-width:360px;}
+.title-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;padding:max(env(safe-area-inset-top,0px),16px) 20px max(env(safe-area-inset-bottom,0px),16px);width:100%;max-width:380px;}
 .logo{font-size:3.2rem;font-weight:900;letter-spacing:.3em;color:transparent;background:linear-gradient(135deg,var(--c),var(--c3),var(--c2));-webkit-background-clip:text;background-clip:text;animation:glow 3s ease-in-out infinite;}
 .sub{font-size:.75rem;letter-spacing:.5em;color:var(--c);opacity:.7;}
 @keyframes glow{0%,100%{filter:drop-shadow(0 0 8px rgba(0,245,255,.5));}50%{filter:drop-shadow(0 0 28px rgba(0,245,255,.9));}}
@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 
 /* GAME */
 #gameScreen{background:var(--bg);flex-direction:column;justify-content:flex-start;}
-#gameCanvas{display:block;touch-action:none;position:absolute;top:0;left:0;}
+#gameCanvas{display:block;touch-action:none;position:absolute;top:0;left:0;will-change:transform;}
 
 /* HUD - simplified, no skill buttons */
 .hud{
@@ -54,12 +54,12 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
   background:rgba(5,8,16,.96);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border-bottom:1px solid var(--br);z-index:20;
-  min-height:calc(54px + env(safe-area-inset-top,0px));
+  min-height:calc(56px + env(safe-area-inset-top,0px));
 }
 .bar-wrap{display:flex;flex-direction:column;gap:3px;}
 .bar-lbl{font-size:.52rem;color:var(--tx2);letter-spacing:.08em;font-weight:600;}
 .bar-row{display:flex;align-items:center;gap:5px;}
-.bar{height:9px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.06);}
+.bar{height:9px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.06);min-width:60px;}
 .bar-fill{height:100%;border-radius:4px;transition:width .2s;}
 .hp-fill{background:linear-gradient(90deg,#e00,#ff6b6b);}
 .mp-fill{background:linear-gradient(90deg,var(--c3),var(--c));}
@@ -74,8 +74,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .hud-skill-btn:active{transform:scale(.88);background:rgba(0,245,255,.2);}
 
 /* BOSS HP */
-#bossHpBar{position:absolute;top:calc(55px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:82%;max-width:380px;z-index:25;display:none;}
-#bossHpBar.show{display:block;}
+#bossHpBar{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:88%;max-width:400px;z-index:25;display:none;}
+#bossHpBar.show{display:block;top:calc(58px + env(safe-area-inset-top,0px)) !important;}
 .boss-hp-label{text-align:center;font-size:.7rem;letter-spacing:.2em;margin-bottom:4px;color:var(--c4);text-shadow:0 0 10px var(--c4);}
 .boss-hp-track{height:12px;background:rgba(255,0,0,.12);border:1px solid rgba(255,100,0,.4);border-radius:3px;overflow:hidden;}
 .boss-hp-fill{height:100%;background:linear-gradient(90deg,#c1121f,#ff6b35,#ffd700);transition:width .15s;border-radius:3px;}
@@ -83,19 +83,19 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* JOYSTICK - dynamic, appears where you touch */
 #joystickBase{width:100px;height:100px;border-radius:50%;background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.15);position:absolute;pointer-events:none;display:none;z-index:20;transform:translate(-50%,-50%);}
 #joystickKnob{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(0,245,255,.6),rgba(0,245,255,.1));border:2px solid var(--c);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 14px rgba(0,245,255,.4);}
-#touchZone{position:absolute;left:0;top:calc(54px + env(safe-area-inset-top,0px));right:0;bottom:env(safe-area-inset-bottom,0px);z-index:15;touch-action:none;}
+#touchZone{position:absolute;left:0;top:calc(56px + env(safe-area-inset-top,0px));right:0;bottom:env(safe-area-inset-bottom,0px);z-index:15;touch-action:none;}
 
 /* SKILL MINI BUTTONS - sağ alt, küçük */
 /* skill-mini-btns kaldırıldı */
 
 /* CARD LEVEL UP - full revamp */
-#lvModal{position:fixed;inset:0;background:rgba(2,4,14,.97);z-index:60;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:max(env(safe-area-inset-top,0px),40px);padding-bottom:max(env(safe-area-inset-bottom,0px),20px);overflow-y:auto;-webkit-overflow-scrolling:touch;backdrop-filter:blur(8px);gap:12px;}
+#lvModal{position:fixed;inset:0;background:rgba(2,4,14,.97);z-index:60;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:max(env(safe-area-inset-top,0px),16px) 12px max(env(safe-area-inset-bottom,0px),16px);overflow-y:auto;-webkit-overflow-scrolling:touch;backdrop-filter:blur(8px);gap:8px;}
 #lvModal.open{display:flex;animation:fadeIn .3s ease-out;}
 @keyframes fadeIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
-.lv-title{font-size:1.3rem;letter-spacing:.4em;color:var(--c4);text-shadow:0 0 20px var(--c4);animation:glow 1.2s infinite;}
+.lv-title{font-size:1.1rem;letter-spacing:.3em;color:var(--c4);text-shadow:0 0 20px var(--c4);animation:glow 1.2s infinite;}
 .lv-sub{font-size:.6rem;color:var(--tx2);letter-spacing:.25em;}
-.lv-cards{display:flex;flex-direction:column;gap:10px;width:94%;max-width:380px;}
-.lv-card{border:1px solid;background:var(--bg2);padding:14px 12px;border-radius:6px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.lv-cards{display:flex;flex-direction:column;gap:8px;width:96%;max-width:400px;}
+.lv-card{border:1px solid;background:var(--bg2);padding:11px 10px;border-radius:6px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .lv-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
 .lv-card:active{transform:scale(.97);}
 .lv-card.rar-common{border-color:rgba(0,245,255,.3);}
@@ -134,7 +134,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .tab-btn.active{border-color:var(--c);color:var(--c);background:rgba(0,245,255,.07);}
 .tab-btn.side.active{border-color:var(--c3);color:var(--c3);}
 .sk-content{flex:1;overflow-y:auto;padding:12px;}
-.sk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.sk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
 .sk-node{border:1px solid var(--br);background:var(--bg3);padding:9px 7px;border-radius:4px;cursor:pointer;transition:all .15s;}
 .sk-node.unl{border-color:var(--c5);}
 .sk-node.mxd{border-color:var(--c4);}
@@ -166,7 +166,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .tl-info{color:var(--tx2);font-size:.52rem;}
 .tl-you{background:rgba(0,245,255,.07);border-radius:2px;}
 /* GAME OVER */
-#goScreen{background:var(--bg);z-index:80;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:max(env(safe-area-inset-top,0px),20px);padding-bottom:max(env(safe-area-inset-bottom,0px),20px);}
+#goScreen{background:var(--bg);z-index:80;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:max(env(safe-area-inset-top,0px),20px) 16px max(env(safe-area-inset-bottom,0px),20px);}
 .go-title{font-size:2rem;letter-spacing:.5em;color:var(--c2);margin-bottom:4px;animation:glow 1.5s infinite;}
 .go-sub{font-size:.6rem;color:var(--tx2);letter-spacing:.3em;margin-bottom:18px;}
 .go-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;width:82%;max-width:280px;}
@@ -176,11 +176,11 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 .go-btns{display:flex;flex-direction:column;gap:8px;width:82%;max-width:280px;}
 
 /* VICTORY */
-#victoryScreen{background:var(--bg);z-index:80;}
+#victoryScreen{background:var(--bg);z-index:80;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:max(env(safe-area-inset-top,0px),20px) 16px max(env(safe-area-inset-bottom,0px),20px);}
 .vc-title{font-size:1.6rem;letter-spacing:.4em;color:var(--c5);animation:glow 1.5s infinite;}
 
 /* CLEAR BANNER */
-#clearBanner{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);padding:10px 22px;font-size:.8rem;letter-spacing:.3em;z-index:25;pointer-events:none;opacity:0;transition:opacity .3s;border-radius:2px;}
+#clearBanner{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);padding:10px 22px;font-size:.8rem;letter-spacing:.3em;z-index:25;pointer-events:none;opacity:0;transition:opacity .3s;border-radius:2px;max-width:90vw;text-align:center;}
 #clearBanner.show{opacity:1;}
 #clearBanner.normal{background:rgba(6,214,160,.1);border:1px solid var(--c5);color:var(--c5);}
 #clearBanner.boss-clear{background:rgba(255,190,11,.1);border:1px solid var(--c4);color:var(--c4);font-size:.95rem;}
@@ -213,6 +213,36 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 /* DMG NUMBERS */
 .dmg{position:absolute;font-weight:bold;pointer-events:none;z-index:30;animation:fup .85s ease-out forwards;}
 @keyframes fup{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-42px) scale(.65);}}
+
+/* SMALL PHONE FIXES (< 380px wide) */
+@media (max-width: 380px) {
+  .logo{font-size:2.6rem;}
+  .btn{padding:11px 24px;font-size:.78rem;}
+  .bar-val{font-size:.6rem;min-width:26px;}
+  .hud-floor{font-size:.7rem;}
+  .hud-score{font-size:.5rem;}
+  .hud-lv{font-size:.46rem;}
+  .lv-title{font-size:.95rem;}
+  .lv-sub{font-size:.54rem;}
+  .lc-nm{font-size:.74rem;}
+  .lc-desc{font-size:.58rem;}
+}
+/* VERY SMALL (< 340px) */
+@media (max-width: 340px) {
+  .bar{min-width:52px !important;}
+  .hud-skill-btn{width:34px;height:34px;font-size:.85rem;}
+  .logo{font-size:2.2rem;letter-spacing:.2em;}
+}
+/* LANDSCAPE fix */
+@media (max-height: 500px) and (orientation: landscape) {
+  .title-content{gap:6px;padding-top:8px !important;padding-bottom:8px !important;}
+  .logo{font-size:2rem;}
+  .btn{padding:9px 20px;}
+  #lvModal{justify-content:flex-start;}
+  .lv-title{font-size:.9rem;}
+  .lv-cards{gap:5px;}
+  .lv-card{padding:8px;}
+}
 </style>
 </head>
 <body>
@@ -255,15 +285,15 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="bar-wrap">
       <div class="bar-lbl">HP</div>
       <div class="bar-row">
-        <div class="bar" style="width:80px"><div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div></div>
+        <div class="bar" style="width:72px"><div class="bar-fill hp-fill" id="hpBar" style="width:100%"></div></div>
         <div class="bar-val" id="hpVal" style="color:#ff6b6b">100</div>
       </div>
       <div class="bar-row" style="margin-top:2px;">
-        <div class="bar" style="width:80px"><div class="bar-fill mp-fill" id="mpBar" style="width:100%"></div></div>
+        <div class="bar" style="width:72px"><div class="bar-fill mp-fill" id="mpBar" style="width:100%"></div></div>
         <div class="bar-val" id="mpVal" style="color:#7b8fff">50</div>
       </div>
       <div class="bar-row" style="margin-top:2px;">
-        <div class="bar" style="width:80px;height:5px;"><div class="bar-fill xp-fill" id="xpBar" style="width:0%"></div></div>
+        <div class="bar" style="width:72px;height:5px;"><div class="bar-fill xp-fill" id="xpBar" style="width:0%"></div></div>
         <div style="font-size:.46rem;color:var(--tx2);min-width:30px;text-align:right;" id="xpLbl">XP</div>
       </div>
     </div>
@@ -384,7 +414,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 </div>
 
 <!-- ELEMENT SEÇİM EKRANI -->
-<div id="elemSelectModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.99);z-index:92;flex-direction:column;align-items:center;overflow-y:auto;padding:20px 0;">
+<div id="elemSelectModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.99);z-index:92;flex-direction:column;align-items:center;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:max(env(safe-area-inset-top,0px),16px) 0 max(env(safe-area-inset-bottom,0px),16px);">
   <div style="font-size:1.3rem;letter-spacing:.4em;color:var(--c);margin:16px 0 4px;animation:glow 2s infinite;">⚗ ELEMENT SEÇ</div>
   <div style="font-size:.6rem;color:var(--tx2);letter-spacing:.25em;margin-bottom:16px;">2 ELEMENT SEÇ — STRATEJİNİ BELİRLE</div>
   <div style="font-size:.55rem;color:var(--c4);letter-spacing:.1em;margin-bottom:12px;" id="elemSelectCount">0/2 seçildi</div>
@@ -788,7 +818,7 @@ function spawnBoss(){
     for(let i=0;i<4;i++) boss.orbits.push({angle:i/4*Math.PI*2,r:75,speed:0.03,alive:true,dmg:boss.atk*.4});
   }
   G.boss=boss;G.enemies.push(boss);G.bossActive=true;G.bossPhase=0;
-  const bBar=document.getElementById('bossHpBar');if(bBar){bBar.classList.add('show');bBar.style.top='calc('+(document.querySelector('.hud').offsetHeight||60)+'px + 6px)';}
+  const bBar=document.getElementById('bossHpBar');if(bBar){bBar.classList.add('show');bBar.style.top='';}
   document.getElementById('bossHpLabel').textContent=def.icon+' '+def.name;
   updateBossHpBar();
   AU.boss();
@@ -1008,11 +1038,23 @@ function showScreen(id){
 function showTitle(){G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);document.getElementById('skillModal').classList.remove('open');document.getElementById('bossIntro').classList.remove('show');document.getElementById('bossHpBar').classList.remove('show');document.getElementById('pauseOverlay').style.display='none';showScreen('titleScreen');}
 function showTitleToplist(){
   const list=getToplist();
-  if(!list.length){alert('Henüz skor kaydedilmemiş!\nOyna ve zirveye çık!');return;}
-  const rows=list.map((e,i)=>`${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)} ${(e.name||'???').padEnd(10)} ${e.score.toLocaleString().padStart(8)} · Lv${e.level}`).join('\n');
-  alert('🏆 GEORIFT - TOP 10\n\n'+rows);
+  const el=document.getElementById('titleToplistModal');
+  if(!list.length){
+    document.getElementById('titleToplistContent').innerHTML='<div style="color:var(--tx2);font-size:.68rem;text-align:center;padding:24px 0;">Henüz skor kaydedilmemiş!<br>Oyna ve zirveye çık!</div>';
+  } else {
+    document.getElementById('titleToplistContent').innerHTML=list.map((e,i)=>{
+      const rank=i===0?'👑':i===1?'🥈':i===2?'🥉':'<span style="color:var(--tx2);font-size:.7rem;">#'+(i+1)+'</span>';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(0,245,255,${i===0?.08:.04});border-radius:4px;border:1px solid rgba(0,245,255,${i===0?.2:.07});margin-bottom:4px;">
+        <span style="font-size:1rem;min-width:22px;">${rank}</span>
+        <span style="flex:1;font-size:.72rem;color:var(--c4);font-weight:bold;">${(e.name||'???').substring(0,12)}</span>
+        <span style="font-size:.62rem;color:var(--tx);">${e.score.toLocaleString()}</span>
+        <span style="font-size:.52rem;color:var(--tx2);">Lv${e.level}·F${e.floor}</span>
+      </div>`;
+    }).join('');
+  }
+  el.style.display='flex';
 }
-function showHelp(){alert('◈ GEORIFT ◈\n\n▶ Ekrana dokun → Joystick oraya gelir\n▶ Ateş OTOMATİK\n▶ Beceriler de OTOMATİK\n▶ Sağdaki butonlar manuel kullanım\n▶ ◈ → Yetenek ağacı\n\nHer 5. dalgada PATRON!\nKart seçiminde DÜŞMANLAR DURUR!');}
+function showHelp(){document.getElementById('helpModal').style.display='flex';}
 
 // ══════════════════════════════
 // PLAYER NAME
@@ -1218,7 +1260,8 @@ function settingsToggleMusic(){
 function clearToplist(){
   if(confirm('Tüm skorlar silinsin mi?')){
     try{localStorage.removeItem('georift_top');}catch(e){}
-    alert('Toplist silindi.');
+    document.getElementById('titleToplistModal').style.display='none';
+    showMsg('🗑 Toplist silindi.');
   }
 }
 
@@ -1272,10 +1315,10 @@ function startGame(){
   document.getElementById('bossHpBar').classList.remove('show');
   G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);
   const canvas=document.getElementById('gameCanvas');
-  G.canvas=canvas;G.ctx=canvas.getContext('2d',{alpha:false});
+  G.canvas=canvas;if(!G.ctx||G.ctx.canvas!==canvas)G.ctx=canvas.getContext('2d',{alpha:false});
   G.W=window.innerWidth;G.H=window.innerHeight;
   canvas.width=G.W;canvas.height=G.H;
-  G.player={x:WORLD_W/2,y:WORLD_H/2,hp:100,maxHp:100,mp:50,maxMp:50,xp:0,xpNext:150,level:1,sp:0,speed:2.2,atk:14,def:5,vx:0,vy:0,invincible:0,kills:0,score:0,hpRegen:0,autoFireCd:0,autoFireRate:30,extraBullets:0,range:1,dashCd:0,dashMaxCd:90,sk1Cd:0,sk1MaxCd:320,sk2Cd:0,sk2MaxCd:260,sk3Cd:0,sk3MaxCd:500,lifesteal:0,critChance:.10,critMult:2,fireLv:0,iceLv:0,thunderLv:0,hasRevive:false,gold:0,goldMult:1,dodgeChance:0,dmgReduction:0,mpRegenMult:1,bulletSpeed:1,fireLv:0,iceLv:0,thunderLv:0};
+  G.player={x:WORLD_W/2,y:WORLD_H/2,hp:100,maxHp:100,mp:50,maxMp:50,xp:0,xpNext:150,level:1,sp:0,speed:2.2,atk:14,def:5,vx:0,vy:0,invincible:0,kills:0,score:0,hpRegen:0,autoFireCd:0,autoFireRate:30,extraBullets:0,range:1,dashCd:0,dashMaxCd:90,sk1Cd:0,sk1MaxCd:320,sk2Cd:0,sk2MaxCd:260,sk3Cd:0,sk3MaxCd:500,lifesteal:0,critChance:.10,critMult:2,fireLv:0,iceLv:0,thunderLv:0,hasRevive:false,gold:0,goldMult:1,dodgeChance:0,dmgReduction:0,mpRegenMult:1,bulletSpeed:1};
   G.enemies=[];G.bullets=[];G.particles=[];G.pickups=[];
   G.floor=1;G.wave=1;G.waveCleared=false;G.gameOver=false;G.bossIntroOpen=false;G.paused=false;
   G.bossActive=false;G.boss=null;G.bossPhase=0;G.bossKillCount=0;G.bossKillThisFloor=0;
@@ -1347,8 +1390,10 @@ function autoFire(){
   else G.enemies.forEach(e=>{const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<minD){minD=d;target=e;}});
   if(!target)return;
   const dx=target.x-p.x,dy=target.y-p.y;
+  // Bullet color from selected elements
   let bCol='#00f5ff';
-  if(p.fireLv>0)bCol='#ff6b35';if(p.iceLv>0)bCol='#90e0ef';if(p.thunderLv>0)bCol='#ffd60a';
+  const _selElems=(G.selectedElements||[]);
+  if(_selElems.length>0){const _e=ELEMENTS.find(e=>e.id===_selElems[0]);if(_e)bCol=_e.col;}
   const shots=1+(p.extraBullets||0);
   for(let i=0;i<shots;i++){
     const spread=(i-(shots-1)/2)*0.18;const angle=Math.atan2(dy,dx)+spread;
@@ -1560,7 +1605,7 @@ function updateHUD(){
 
 function showMsg(txt){
   const m=document.createElement('div');
-  m.style.cssText='position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(5,8,16,.92);border:1px solid rgba(0,245,255,.3);padding:8px 16px;font-size:.7rem;color:#00f5ff;z-index:100;border-radius:4px;pointer-events:none;letter-spacing:.08em;white-space:nowrap;max-width:85vw;text-align:center;';
+  m.style.cssText='position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(5,8,16,.94);border:1px solid rgba(0,245,255,.35);padding:7px 14px;font-size:.68rem;color:#00f5ff;z-index:120;border-radius:4px;pointer-events:none;letter-spacing:.06em;white-space:nowrap;max-width:88vw;text-align:center;overflow:hidden;text-overflow:ellipsis;';
   m.textContent=txt;document.body.appendChild(m);setTimeout(()=>m.remove(),2200);
 }
 
@@ -2142,5 +2187,53 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('controllerchange',()=>window.location.reload());
 }
 </script>
+
+<!-- TITLE TOPLIST MODAL -->
+<div id="titleToplistModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:95;flex-direction:column;overflow:hidden;">
+  <div style="padding:max(env(safe-area-inset-top,0px),14px) 14px 12px;background:var(--bg2);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:.9rem;letter-spacing:.3em;color:var(--c);">🏆 TOPLIST</div>
+    <button class="m-close" onclick="document.getElementById('titleToplistModal').style.display='none'">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;">
+    <div id="titleToplistContent"></div>
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn red" style="font-size:.6rem;padding:6px 14px;" onclick="clearToplist()">🗑 SKORU SİL</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;padding-bottom:max(env(safe-area-inset-bottom,0px),12px);background:rgba(0,245,255,.04);border-top:1px solid var(--br);">
+    <button class="btn pri" onclick="document.getElementById('titleToplistModal').style.display='none'" style="width:100%;font-size:.8rem;padding:11px;">✕ KAPAT</button>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.97);z-index:95;flex-direction:column;overflow:hidden;">
+  <div style="padding:max(env(safe-area-inset-top,0px),14px) 14px 12px;background:var(--bg2);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:.9rem;letter-spacing:.3em;color:var(--c);">? NASIL OYNANIR</div>
+    <button class="m-close" onclick="document.getElementById('helpModal').style.display='none'">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:12px;">
+        <div style="font-size:.65rem;color:var(--c);letter-spacing:.2em;margin-bottom:8px;">🕹 KONTROLLER</div>
+        <div style="font-size:.62rem;color:var(--tx2);line-height:2;">▶ Ekrana <span style="color:var(--tx);">dokun</span> → Joystick oraya gelir<br>▶ Ateş <span style="color:var(--c5);">OTOMATİK</span><br>▶ Beceriler <span style="color:var(--c5);">OTOMATİK</span> kullanılır<br>▶ <span style="color:var(--c);">◈</span> → Kazandığın yetenekleri gör<br>▶ <span style="color:var(--c);">⏸</span> → Oyunu duraklat</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:12px;">
+        <div style="font-size:.65rem;color:var(--c4);letter-spacing:.2em;margin-bottom:8px;">⚔ SAVAŞ</div>
+        <div style="font-size:.62rem;color:var(--tx2);line-height:2;">▶ Her <span style="color:var(--tx);">4. dalgada</span> PATRON çıkar<br>▶ Kart seçiminde <span style="color:var(--c4);">düşmanlar durur</span><br>▶ 3 patron yenince <span style="color:var(--c5);">kat geçersin</span><br>▶ 10. katı geç → <span style="color:var(--c4);">zafer!</span></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--br);border-radius:6px;padding:12px;">
+        <div style="font-size:.65rem;color:var(--c3);letter-spacing:.2em;margin-bottom:8px;">⚗ ELEMENTLER</div>
+        <div style="font-size:.62rem;color:var(--tx2);line-height:2;">▶ Başta <span style="color:var(--tx);">2 element seç</span><br>▶ Levelda kartlar seçilen elementlerden gelir<br>▶ 🟡 Altın ile kozmetik al<br>▶ 🧲 Mıknatıs: altınları toplar</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid rgba(255,190,11,.3);border-radius:6px;padding:12px;">
+        <div style="font-size:.65rem;color:var(--c4);letter-spacing:.2em;margin-bottom:8px;">💡 İPUCU</div>
+        <div style="font-size:.62rem;color:var(--tx2);line-height:2;">▶ Lav bölgelerinden kaçın!<br>▶ HP/MP pickup'ları almayı unutma<br>▶ Savunma yüksekse patron daha az acıtır<br>▶ Efsane kart çok nadir — şansını dene!</div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:12px 16px;padding-bottom:max(env(safe-area-inset-bottom,0px),12px);background:rgba(0,245,255,.04);border-top:1px solid var(--br);">
+    <button class="btn pri" onclick="document.getElementById('helpModal').style.display='none'" style="width:100%;font-size:.8rem;padding:11px;">✕ KAPAT</button>
+  </div>
+</div>
 </body>
 </html>
