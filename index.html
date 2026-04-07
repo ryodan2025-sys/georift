@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, orientation=any">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GEORIFT">
@@ -17,7 +17,8 @@
   --tx:#e0e8ff;--tx2:#7a8aaa;--br:rgba(0,245,255,0.2);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
-body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;overflow:hidden;width:100vw;height:100vh;position:fixed;/* iOS scroll fix */}
+body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;overflow:hidden;width:100vw;height:100vh;position:fixed;}
+body.landscape-mode{width:100vh;height:100vw;}
 .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;width:100%;height:100%;}
 .screen.active{display:flex;}
 
@@ -204,6 +205,13 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
 }
 #playerNameInput:focus{border-color:var(--c4);box-shadow:0 0 14px rgba(255,190,11,.3);}
 
+/* LANDSCAPE MODE */
+.landscape-mode #gameCanvas{width:100%;height:100%;}
+.landscape-mode .hud{flex-direction:row;}
+
+/* FIRE JOYSTICK */
+#fireJoyBase{transition:transform .1s;}
+
 /* SCREEN FLASH */
 #screenFlash{position:fixed;inset:0;pointer-events:none;z-index:65;opacity:0;transition:opacity .08s;}
 #screenFlash.red{background:rgba(255,0,0,.28);}
@@ -261,7 +269,8 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="logo">GEORIFT</div>
     <div class="sub">◈ GEOMETRİK ROGUELIKE ◈</div>
     <br>
-    <button class="btn pri" onclick="requestName()">▶ OYUNA BAŞLA</button>
+    <button class="btn pri" onclick="requestName()" style="width:100%;">▶ OYUNA BAŞLA</button>
+    <div id="titleDiffBadge" style="font-size:.58rem;color:var(--tx2);text-align:center;">Zorluk: <span id="titleDiffName" style="color:var(--c4);">STANDART</span></div>
     <button class="btn pur" onclick="showCardsPreview()">🃏 YETENEKLERİ GÖSTER</button>
     <div style="display:flex;gap:8px;width:100%;">
       <button class="btn" onclick="showTitleToplist()" style="flex:1;">🏆 TOPLIST</button>
@@ -318,6 +327,12 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
   <div id="joystickBase"><div id="joystickKnob"></div></div>
 
   <div id="clearBanner" class="normal"></div>
+
+  <!-- 2. JOYSTICK: Ateş (sağ alt) -->
+  <div id="fireJoyBase" style="display:none;position:absolute;right:30px;bottom:calc(60px + env(safe-area-inset-bottom,0px));width:110px;height:110px;border-radius:50%;background:rgba(255,0,110,.05);border:1.5px solid rgba(255,0,110,.2);pointer-events:none;z-index:16;transform:translate(50%,50%);">
+    <div id="fireJoyKnob" style="width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,rgba(255,0,110,.7),rgba(255,0,110,.15));border:2px solid #ff006e;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 18px rgba(255,0,110,.5);"></div>
+  </div>
+  <div id="fireJoyZone" style="display:none;position:absolute;right:0;bottom:0;width:48%;height:55%;z-index:15;touch-action:none;"></div>
 
   <!-- Gizli cd elementleri (updateHUD için gerekli) -->
   <div style="display:none;">
@@ -397,6 +412,25 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
           <button class="btn" style="font-size:.55rem;padding:4px 8px;" onclick="changeName()">DEĞİŞTİR</button>
         </div>
       </div>
+      <div style="border-top:1px solid var(--br);padding-top:12px;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:.62rem;color:var(--c);letter-spacing:.15em;margin-bottom:2px;">🎮 OYNANMAK</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--tx);">🔫 Ateş Modu</span>
+          <button id="fireModBtn" class="btn" style="padding:5px 12px;font-size:.65rem;" onclick="toggleFireMode()">OTO</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--tx);">🕹 2. Joystick (Ateş)</span>
+          <button id="fireJoyToggleBtn" class="btn" style="padding:5px 12px;font-size:.65rem;" onclick="toggleFireJoy()">KAPALI</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--tx);">🔄 Oto Yetenek</span>
+          <button id="autoSkillBtn" class="btn" style="padding:5px 12px;font-size:.65rem;" onclick="toggleAutoSkill()">AÇIK</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.72rem;color:var(--tx);">📱 Yatay Mod</span>
+          <button id="landscapeBtn" class="btn" style="padding:5px 12px;font-size:.65rem;" onclick="toggleLandscape()">KAPALI</button>
+        </div>
+      </div>
       <div style="border-top:1px solid var(--br);padding-top:10px;">
         <button class="btn red" style="width:100%;font-size:.65rem;" onclick="clearToplist()">🗑 TOPLIST'İ SİL</button>
       </div>
@@ -418,6 +452,14 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div style="font-size:.55rem;color:var(--tx2);letter-spacing:.1em;margin-bottom:10px;">Altın oyunda düşmanlardan kazanılır · Oynanışa etkisi yok</div>
     <div id="cosShopList"></div>
   </div>
+</div>
+
+<!-- ZORLUK SEÇİM EKRANI -->
+<div id="diffModal" style="display:none;position:fixed;inset:0;background:rgba(5,8,16,.99);z-index:93;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:max(env(safe-area-inset-top,0px),20px) 16px max(env(safe-area-inset-bottom,0px),20px);">
+  <div style="font-size:1.3rem;letter-spacing:.4em;color:var(--c);margin:10px 0 4px;animation:glow 2s infinite;">⚔ ZORLUK</div>
+  <div style="font-size:.6rem;color:var(--tx2);letter-spacing:.25em;margin-bottom:18px;">SAVAŞ ZORLUĞUNU SEÇ</div>
+  <div id="diffGrid" style="display:flex;flex-direction:column;gap:10px;width:96%;max-width:400px;"></div>
+  <button class="btn pri" onclick="confirmDiff()" style="margin-top:16px;width:96%;max-width:400px;font-size:.85rem;padding:13px;">▶ DEVAM ET</button>
 </div>
 
 <!-- ELEMENT SEÇİM EKRANI -->
@@ -476,7 +518,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
   </div>
   <div id="goToplist" style="width:82%;max-width:280px;margin-bottom:8px;"></div>
   <div class="go-btns">
-    <button class="btn pri" onclick="startGame()">↺ TEKRAR OYNA</button>
+    <button class="btn pri" onclick="showDiffSelect()">↺ TEKRAR OYNA</button>
     <button class="btn" onclick="showTitle()">⌂ ANA MENÜ</button>
   </div>
 </div>
@@ -493,7 +535,7 @@ body{background:var(--bg);color:var(--tx);font-family:'Courier New',monospace;ov
     <div class="go-stat"><div class="go-sv" id="vcLevel">1</div><div class="go-sl">SEVİYE</div></div>
   </div>
   <div class="go-btns">
-    <button class="btn pri" onclick="startGame()">↺ TEKRAR OYNA</button>
+    <button class="btn pri" onclick="showDiffSelect()">↺ TEKRAR OYNA</button>
     <button class="btn" onclick="showTitle()">⌂ ANA MENÜ</button>
   </div>
 </div>
@@ -516,9 +558,40 @@ const AU = (function(){
   let musicOn = true;
   // Sinematik ambient — Dm pentatonik + hafif harmonikler
   // Yumuşak, heyecan katan, bass-light
-  const MUSIC_MELODY=[146,174,196,220,196,174,146,130,146,174,220,261,220,174,196,174];
-  const MUSIC_PAD   =[109,109,130,130,146,146,130,130,109,109,130,130,146,174,146,130];
-  const MUSIC_ARP   =[220,261,293,349,293,261,220,196,220,261,329,392,329,261,220,196];
+  // Çoklu müzik temaları
+  const THEMES = {
+    title: {
+      mel:[146,174,196,220,196,174,146,130,146,174,220,261,220,174,196,174],
+      pad:[109,109,130,130,146,146,130,130,109,109,130,130,146,174,146,130],
+      arp:[220,261,293,349,293,261,220,196,220,261,329,392,329,261,220,196],
+      tempo:320, gainMel:0.38, gainPad:0.28
+    },
+    floor1: { // Kat 1-3: Sakin mavi
+      mel:[196,220,246,261,246,220,196,174,196,220,261,293,261,220,196,174],
+      pad:[130,130,146,146,130,130,146,174,130,130,146,146,174,196,174,146],
+      arp:[293,349,392,440,392,349,293,261,293,349,440,523,440,349,293,261],
+      tempo:340, gainMel:0.3, gainPad:0.22
+    },
+    floor2: { // Kat 4-6: Gerilim
+      mel:[233,220,196,174,196,220,233,246,233,220,196,174,165,174,196,220],
+      pad:[116,110,130,116,130,146,130,116,116,110,130,116,110,116,130,116],
+      arp:[349,330,293,261,293,330,349,392,349,330,293,261,247,261,293,330],
+      tempo:290, gainMel:0.35, gainPad:0.25
+    },
+    floor3: { // Kat 7-10: Epik
+      mel:[261,293,329,349,329,293,261,233,261,293,349,392,349,293,261,233],
+      pad:[130,146,165,174,165,146,130,116,130,146,165,174,196,174,165,146],
+      arp:[392,440,494,523,494,440,392,349,392,440,523,587,523,440,392,349],
+      tempo:260, gainMel:0.4, gainPad:0.3
+    },
+    boss: { // Boss müziği: Hızlı, yoğun
+      mel:[349,330,294,330,349,392,349,330,294,330,311,294,330,349,294,261],
+      pad:[174,165,146,165,174,196,174,165,146,165,155,146,165,174,146,130],
+      arp:[523,494,440,494,523,587,523,494,440,494,466,440,494,523,440,392],
+      tempo:200, gainMel:0.45, gainPad:0.32
+    }
+  };
+  let _currentTheme='title';
   let _musicStep=0, _musicTimer=null, _musicBeat=0;
 
   function init(){
@@ -562,51 +635,47 @@ const AU = (function(){
     src.start(); src.stop(ctx.currentTime + dur + 0.02);
   }
 
-  function startMusic(){
+  function startMusic(theme){
     if(!ctx) return;
+    if(theme) _currentTheme=theme;
     _musicStep=0;
+    const T=THEMES[_currentTheme]||THEMES.title;
     function playStep(){
       if(!musicOn){_musicTimer=null;return;}
-      const step=_musicStep%MUSIC_MELODY.length;
-      const mel=MUSIC_MELODY[step];
-      const pad=MUSIC_PAD[step];
-      const arp=MUSIC_ARP[step];
+      const th=THEMES[_currentTheme]||THEMES.title;
+      const step=_musicStep%th.mel.length;
+      const mel=th.mel[step];
+      const pad=th.pad[step];
+      const arp=th.arp[step];
       _musicBeat++;
 
-      // ── PAD (altlık sinüs katmanı — sürekli çalan) ──
       if(_musicStep%8===0){
         const oP=ctx.createOscillator();const gP=ctx.createGain();
         oP.connect(gP);gP.connect(musicGain);
         oP.type='sine';oP.frequency.value=pad;
         gP.gain.setValueAtTime(0.001,ctx.currentTime);
-        gP.gain.linearRampToValueAtTime(0.28,ctx.currentTime+0.3);
-        gP.gain.setValueAtTime(0.28,ctx.currentTime+2.8);
+        gP.gain.linearRampToValueAtTime(th.gainPad,ctx.currentTime+0.3);
+        gP.gain.setValueAtTime(th.gainPad,ctx.currentTime+2.8);
         gP.gain.linearRampToValueAtTime(0.001,ctx.currentTime+3.2);
         oP.start(ctx.currentTime);oP.stop(ctx.currentTime+3.3);
       }
-
-      // ── MELODİ (triangle — yumuşak, tiz değil) ──
       const oM=ctx.createOscillator();const gM=ctx.createGain();
       oM.connect(gM);gM.connect(musicGain);
       oM.type='triangle';oM.frequency.value=mel;
       gM.gain.setValueAtTime(0.001,ctx.currentTime);
-      gM.gain.linearRampToValueAtTime(0.38,ctx.currentTime+0.06);
-      gM.gain.setValueAtTime(0.32,ctx.currentTime+0.25);
+      gM.gain.linearRampToValueAtTime(th.gainMel,ctx.currentTime+0.06);
+      gM.gain.setValueAtTime(th.gainMel*.85,ctx.currentTime+0.25);
       gM.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);
       oM.start(ctx.currentTime);oM.stop(ctx.currentTime+0.6);
-
-      // ── ARPEJİO (her 2 adımda bir, çok hafif) ──
       if(_musicStep%2===0){
         const oA=ctx.createOscillator();const gA=ctx.createGain();
         oA.connect(gA);gA.connect(musicGain);
         oA.type='sine';oA.frequency.value=arp;
         gA.gain.setValueAtTime(0.001,ctx.currentTime);
-        gA.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.03);
+        gA.gain.linearRampToValueAtTime(0.14,ctx.currentTime+0.03);
         gA.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.28);
         oA.start(ctx.currentTime);oA.stop(ctx.currentTime+0.3);
       }
-
-      // ── YUMUŞAK PERKÜSYON (her 4 adımda, çok düşük) ──
       if(_musicStep%4===0){
         const buf=ctx.createBuffer(1,ctx.sampleRate*.12,ctx.sampleRate);
         const bd=buf.getChannelData(0);
@@ -614,13 +683,12 @@ const AU = (function(){
         const bSrc=ctx.createBufferSource();const bG=ctx.createGain();
         const bF=ctx.createBiquadFilter();bF.type='lowpass';bF.frequency.value=180;
         bSrc.buffer=buf;bSrc.connect(bF);bF.connect(bG);bG.connect(musicGain);
-        bG.gain.setValueAtTime(0.18,ctx.currentTime);
+        bG.gain.setValueAtTime(0.16,ctx.currentTime);
         bG.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.12);
         bSrc.start();bSrc.stop(ctx.currentTime+0.13);
       }
-
       _musicStep++;
-      _musicTimer=setTimeout(playStep, 320); // Biraz daha hızlı tempo
+      _musicTimer=setTimeout(playStep, th.tempo);
     }
     playStep();
   }
@@ -671,6 +739,28 @@ const AU = (function(){
     skill3(){ tone(120,'sine',0.10,0.25); tone(180,'triangle',0.07,0.18,0.06); },
     levelup(){ [0,0.1,0.2,0.3].forEach((d,i)=>tone([330,415,495,660][i],'sine',0.09,0.18,d)); },
     boss(){ [0,0.12,0.24].forEach((d,i)=>tone([60,50,40][i],'sawtooth',0.12,0.4,d)); },
+    changeMusic(type){
+      // Müzik temasını değiştir
+      if(!ctx||!musicOn)return;
+      const floor=window.G?G.floor:1;
+      let theme;
+      if(type==='boss') theme='boss';
+      else if(type==='floor'){
+        if(floor<=3) theme='floor1';
+        else if(floor<=6) theme='floor2';
+        else theme='floor3';
+      } else theme='title';
+      if(theme===_currentTheme)return;
+      // Fade out → in
+      if(_musicTimer){clearTimeout(_musicTimer);_musicTimer=null;}
+      musicGain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.5);
+      setTimeout(()=>{
+        _currentTheme=theme;
+        musicGain.gain.setValueAtTime(0,ctx.currentTime);
+        musicGain.gain.linearRampToValueAtTime(0.18,ctx.currentTime+1.0);
+        startMusic(theme);
+      },600);
+    },
     bossdie(){
       [0,0.12,0.24,0.36,0.48].forEach((d,i)=>tone([220,330,440,330,220][i],'sine',0.10,0.22,d));
       noise(0.10,0.4,300);
@@ -753,6 +843,9 @@ let G={
   _levelOptions:null,
   gameOver:false,bossIntroOpen:false,
   _stars:null,_meteors:[],
+  diffMult:1, // zorluk çarpanı
+  settings:{autoFire:true,autoSkill:true,manualShootJoy:false,landscape:false},
+  _waveTotal:10,_waveSpawned:0,_prevWaveCount:10,
 };
 
 // ══════════════════════════════
@@ -774,39 +867,69 @@ function generateWorld(){
 
 function spawnWave(){
   G.enemies=G.enemies.filter(e=>e.isBoss);
-  const count=5+G.floor*2+G.wave*3;
+  // Katlanarak artan düşman: dalga 1=10, her dalga öncekinin ~2-3x'i (rastgele)
+  const base=10;
+  let count;
+  if(G.wave===1){
+    count=base;
+  } else {
+    // Önceki dalga sayısının 2x ile 3x arası rastgele
+    const prev=G._prevWaveCount||base;
+    const mult=2+Math.random(); // 2.0 - 3.0 arası
+    count=Math.floor(prev*mult);
+    // Zorluk çarpanı
+    const dm=G.diffMult||1;
+    count=Math.floor(count*dm);
+    // Makul üst sınır (performans)
+    count=Math.min(count,80);
+  }
+  G._prevWaveCount=count;
   const p=G.player;
-  for(let i=0;i<Math.min(count,22);i++){
+  const batchSize=15; // Ekranda aynı anda max düşman
+  G._waveTotal=count;
+  G._waveSpawned=0;
+  G._waveBatch=batchSize;
+  // İlk batch'i hemen spawnla
+  _spawnBatch(Math.min(batchSize,count));
+  G.waveCleared=false;
+}
+
+function _spawnBatch(n){
+  const p=G.player;
+  const fmult=(1+(G.floor-1)*0.35)*(G.diffMult||1);
+  for(let i=0;i<n;i++){
+    if(G._waveSpawned>=(G._waveTotal||0))break;
     let ex,ey,tries=0;
     do{
-      const a=Math.random()*Math.PI*2,d=280+Math.random()*450;
+      const a=Math.random()*Math.PI*2,d=300+Math.random()*500;
       ex=Math.max(30,Math.min(WORLD_W-30,p.x+Math.cos(a)*d));
       ey=Math.max(30,Math.min(WORLD_H-30,p.y+Math.sin(a)*d));
       tries++;
     }while(Math.hypot(ex-p.x,ey-p.y)<200&&tries<10);
-    const isElite=Math.random()<.15;
+    const isElite=Math.random()<(.12+(G.floor-1)*.03);
     const tier=isElite?2:1;
-    // Daha yüksek katlarda daha zor tipler
     const availTypes=ENEMY_TYPES.filter(t=>t.id<Math.min(3+G.floor*2,ENEMY_TYPES.length));
     const eType=availTypes[Math.floor(Math.random()*availTypes.length)];
-    const fmult=1+(G.floor-1)*0.35;const hp=Math.floor((28+G.floor*12+G.wave*6)*tier*eType.hpMult*fmult);
-    G.enemies.push({x:ex,y:ey,hp,maxHp:hp,
-      speed:(1.1+G.floor*.10)*(tier===2?.80:1)*eType.speed,
+    const hp=Math.floor((28+G.floor*12+G.wave*6)*tier*eType.hpMult*fmult);
+    G.enemies.push({
+      x:ex,y:ey,hp,maxHp:hp,
+      speed:(1.1+G.floor*.10)*(tier===2?.80:1)*eType.speed*(G.diffMult||1)*.85,
       atk:Math.floor((6+G.floor*3)*tier*eType.atkMult*fmult),
       type:eType.id,etype:eType,tier,size:[11,16][tier-1],
       vx:0,vy:0,shootCd:Math.random()*(eType.shootRate||60),
       stunTime:0,burnTime:0,freezeTime:0,rot:0,
       teleportCd:eType.teleport?(60+Math.random()*60):99999,
       dropXp:(5+G.wave*1.5)*tier,
-      isBoss:false});
+      isBoss:false
+    });
+    G._waveSpawned++;
   }
-  G.waveCleared=false;
 }
 
 // ══════════════════════════════
 // BOSS SYSTEM
 // ══════════════════════════════
-function shouldSpawnBoss(){ return G.wave>0&&G.wave%4===0&&!G.bossActive; }
+function shouldSpawnBoss(){ return G.wave>=10&&!G.bossActive&&!G.waveCleared; }
 
 function spawnBoss(){
   const def=BOSS_DEFS[Math.min(G.bossKillCount,BOSS_DEFS.length-1)];
@@ -838,6 +961,7 @@ function showBossIntro(){
   const bip=document.getElementById('bossIntroPhases');if(bip)bip.innerHTML=def.phases.map(ph=>`<span class="phase-tag">${ph}</span>`).join('');
   document.getElementById('bossIntro').classList.add('show');
   G.bossIntroOpen=true;G.paused=true;
+  AU.changeMusic('boss');
 }
 
 function closeBossIntro(){
@@ -936,25 +1060,21 @@ function killBoss(boss){
   for(let i=0;i<3;i++){const a=Math.random()*Math.PI*2,d=25+Math.random()*70;G.pickups.push({x:boss.x+Math.cos(a)*d,y:boss.y+Math.sin(a)*d,type:Math.random()<.55?'hp':'mp',r:11,alive:true});}
   document.getElementById('bossHpBar').classList.remove('show');
   checkLevelUp();updateHUD();
-  G.bossKillThisFloor=(G.bossKillThisFloor||0)+1;
-  const bossesPerFloor=3;
-  if(G.bossKillThisFloor>=bossesPerFloor){
-    // Kat geç!
-    G.bossKillThisFloor=0;
-    G.floor++;
-    if(G.floor>10){setTimeout(doVictory,2000);return;}
-    const b=document.getElementById('clearBanner');b.className='boss-clear';
-    b.textContent='🏛️ KAT '+G.floor+' AÇILDI! ★★★';b.classList.add('show');
-    setTimeout(()=>b.classList.remove('show'),3500);
-    flashScreen('gold');showMsg('🏛️ KAT '+G.floor+' — Düşmanlar güçlendi!');
-    G.wave=1;
-    setTimeout(()=>{spawnWave();},4500);
-  } else {
-    const b=document.getElementById('clearBanner');b.className='boss-clear';
-    b.textContent='👑 '+boss.bossDef.name+' YENİLDİ! ('+G.bossKillThisFloor+'/'+bossesPerFloor+')';
-    b.classList.add('show');setTimeout(()=>b.classList.remove('show'),3000);
-    setTimeout(()=>{G.wave++;spawnWave();},4000);
-  }
+  // 1 boss per floor → kat atla
+  G.floor++;
+  G._prevWaveCount=10; // Yeni kat: dalga sayacını sıfırla
+  if(G.floor>10){setTimeout(doVictory,2000);return;}
+  // Müzik değiştir
+  AU.changeMusic('floor');
+  const b=document.getElementById('clearBanner');
+  b.className='boss-clear';
+  b.textContent='🏛️ KAT '+G.floor+' AÇILDI! ★★★';
+  b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),3500);
+  flashScreen('gold');
+  showMsg('🏛️ KAT '+G.floor+' — Düşmanlar güçlendi!');
+  G.wave=1;
+  setTimeout(()=>{spawnWave();},4500);
 }
 
 // ══════════════════════════════
@@ -1048,7 +1168,17 @@ function showScreen(id){
   el.style.display='flex';
   el.classList.add('active');
 }
-function showTitle(){G.running=false;if(G.frameId)cancelAnimationFrame(G.frameId);document.getElementById('skillModal').classList.remove('open');document.getElementById('bossIntro').classList.remove('show');document.getElementById('bossHpBar').classList.remove('show');document.getElementById('pauseOverlay').style.display='none';showScreen('titleScreen');}
+function showTitle(){
+  G.running=false;if(G.frameId){cancelAnimationFrame(G.frameId);G.frameId=null;}
+  document.getElementById('skillModal').classList.remove('open');
+  document.getElementById('bossIntro').classList.remove('show');
+  document.getElementById('bossHpBar').classList.remove('show');
+  document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('diffModal').style.display='none';
+  document.getElementById('elemSelectModal').style.display='none';
+  AU.changeMusic&&AU.changeMusic('title');
+  showScreen('titleScreen');
+}
 function showTitleToplist(){
   const list=getToplist();
   const el=document.getElementById('titleToplistModal');
@@ -1076,8 +1206,9 @@ let playerName = localStorage.getItem('georift_name') || '';
 
 function requestName(){
   AU.init();
+  if(!G.settings)G.settings={autoFire:true,autoSkill:true,manualShootJoy:false};
   if(playerName && playerName.length>0){
-    showElementSelect(); return; // İsim var, element seç
+    showDiffSelect(); return;
   }
   const modal = document.getElementById('nameModal');
   const inp = document.getElementById('playerNameInput');
@@ -1162,7 +1293,7 @@ function confirmName(){
   playerName = name;
   try{localStorage.setItem('georift_name',name);}catch(e){}
   document.getElementById('nameModal').style.display='none';
-  showElementSelect();
+  showDiffSelect();
 }
 // Enter tuşu ile de onayla
 document.addEventListener('keydown',e=>{
@@ -1248,6 +1379,11 @@ function showSettings(){
   document.getElementById('sfxToggleBtn').textContent=AU.soundOn?'AÇIK':'KAPALI';
   document.getElementById('musicToggleBtn').textContent=AU.musicOn?'AÇIK':'KAPALI';
   document.getElementById('settingsNameDisplay').textContent=playerName||'-';
+  if(!G.settings)G.settings={autoFire:true,autoSkill:true,manualShootJoy:false};
+  const fmb=document.getElementById('fireModBtn');if(fmb)fmb.textContent=G.settings.manualShootJoy?'MANUEL':'OTO';
+  const fjb=document.getElementById('fireJoyToggleBtn');if(fjb)fjb.textContent=G.settings.manualShootJoy?'AÇIK':'KAPALI';
+  const asb=document.getElementById('autoSkillBtn');if(asb)asb.textContent=G.settings.autoSkill!==false?'AÇIK':'KAPALI';
+  const lsb=document.getElementById('landscapeBtn');if(lsb)lsb.textContent=document.body.classList.contains('landscape-mode')?'AÇIK':'KAPALI';
   modal.style.display='flex';
 }
 function closeSettings(){
@@ -1262,6 +1398,49 @@ function changeName(){
   inp.value='';
   modal.style.display='flex';
   setTimeout(()=>inp.focus(),100);
+}
+function toggleFireMode(){
+  if(!G.settings)G.settings={autoFire:true,autoSkill:true,manualShootJoy:false};
+  // Oto ateş her zaman açık — sadece yön modu değişir
+  G.settings.manualShootJoy=!G.settings.manualShootJoy;
+  const btn=document.getElementById('fireModBtn');
+  if(btn)btn.textContent=G.settings.manualShootJoy?'MANUEL':'OTO';
+  if(window._updateFireJoyVisibility)_updateFireJoyVisibility();
+  showMsg(G.settings.manualShootJoy?'🕹 2. Joystick ile yön ver!':'🎯 Oto nişan aktif');
+}
+function toggleFireJoy(){
+  if(!G.settings)G.settings={autoFire:true,autoSkill:true,manualShootJoy:false};
+  G.settings.manualShootJoy=!G.settings.manualShootJoy;
+  const btn=document.getElementById('fireJoyToggleBtn');
+  if(btn)btn.textContent=G.settings.manualShootJoy?'AÇIK':'KAPALI';
+  const fbtn=document.getElementById('fireModBtn');
+  if(fbtn)fbtn.textContent=G.settings.manualShootJoy?'MANUEL':'OTO';
+  if(window._updateFireJoyVisibility)_updateFireJoyVisibility();
+}
+function toggleAutoSkill(){
+  if(!G.settings)G.settings={autoFire:true,autoSkill:true,manualShootJoy:false};
+  G.settings.autoSkill=!G.settings.autoSkill;
+  const btn=document.getElementById('autoSkillBtn');
+  if(btn)btn.textContent=G.settings.autoSkill?'AÇIK':'KAPALI';
+}
+function toggleLandscape(){
+  const body=document.body;
+  const isLS=body.classList.toggle('landscape-mode');
+  const btn=document.getElementById('landscapeBtn');
+  if(btn)btn.textContent=isLS?'AÇIK':'KAPALI';
+  if(isLS){
+    // Tam ekran landscape isteyebiliriz
+    if(document.documentElement.requestFullscreen){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    }
+    // Ekran döndürme API (destekleyen tarayıcılarda)
+    if(screen.orientation&&screen.orientation.lock){
+      screen.orientation.lock('landscape').catch(()=>{});
+    }
+  } else {
+    if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+    if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();
+  }
 }
 function settingsToggleSound(){
   AU.init();AU.toggleSound();
@@ -1318,6 +1497,54 @@ function closeCardsPreview(){
 }
 
 // ══════════════════════════════
+// ZORLUK SİSTEMİ
+// ══════════════════════════════
+const DIFFICULTIES=[
+  {id:'easy',   name:'KOLAY',    icon:'🟢', col:'#06d6a0', desc:'Düşmanlar zayıf, HP rejenerasyonu var',     diffMult:0.6,  hpMult:1.3,  xpMult:0.8},
+  {id:'normal', name:'STANDART', icon:'🔵', col:'#00f5ff', desc:'Dengeli deneyim — önerilen başlangıç',     diffMult:1.0,  hpMult:1.0,  xpMult:1.0},
+  {id:'hard',   name:'ZOR',      icon:'🟠', col:'#ffbe0b', desc:'Düşmanlar güçlü, daha az HP pickup',       diffMult:1.5,  hpMult:0.8,  xpMult:1.2},
+  {id:'brutal', name:'ÖLÜMCÜL',  icon:'🔴', col:'#ff006e', desc:'Acımasız tempo, her hata cezalandırılır',  diffMult:2.2,  hpMult:0.6,  xpMult:1.5},
+  {id:'hell',   name:'İMKANSIZ',icon:'💀', col:'#7b2fff', desc:'Gerçek kaos — hayatta kalmak neredeyse imkansız', diffMult:3.5, hpMult:0.4, xpMult:2.0},
+];
+let _selectedDiff='normal';
+
+function showDiffSelect(){
+  AU.init();
+  const grid=document.getElementById('diffGrid');
+  grid.innerHTML=DIFFICULTIES.map(d=>`
+    <div id="dcard_${d.id}" onclick="selectDiff('${d.id}')" style="border:2px solid ${d.id===_selectedDiff?d.col:'rgba(255,255,255,.1)'};background:${d.id===_selectedDiff?'rgba(0,0,0,.3)':'var(--bg2)'};border-radius:8px;padding:14px 12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;${d.id===_selectedDiff?'box-shadow:0 0 20px '+d.col+'44;':''}">
+      <div style="font-size:2rem;">${d.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:.82rem;color:${d.col};font-weight:bold;letter-spacing:.1em;">${d.name}</div>
+        <div style="font-size:.58rem;color:var(--tx2);margin-top:3px;line-height:1.5;">${d.desc}</div>
+        <div style="font-size:.5rem;color:${d.col};margin-top:5px;">
+          Hasar ×${d.diffMult} · HP ×${d.hpMult} · XP ×${d.xpMult}
+        </div>
+      </div>
+      ${d.id===_selectedDiff?'<div style="font-size:1rem;color:'+d.col+';">✓</div>':''}
+    </div>`).join('');
+  document.getElementById('diffModal').style.display='flex';
+}
+
+function selectDiff(id){
+  _selectedDiff=id;
+  showDiffSelect(); // re-render
+  // Title badge güncelle
+  const d=DIFFICULTIES.find(x=>x.id===id);
+  const badge=document.getElementById('titleDiffName');
+  if(badge&&d)badge.textContent=d.name;
+}
+
+function confirmDiff(){
+  const d=DIFFICULTIES.find(x=>x.id===_selectedDiff)||DIFFICULTIES[1];
+  G.diffMult=d.diffMult;
+  G._diffHpMult=d.hpMult;
+  G._diffXpMult=d.xpMult||1;
+  document.getElementById('diffModal').style.display='none';
+  showElementSelect();
+}
+
+// ══════════════════════════════
 // START GAME
 // ══════════════════════════════
 function startGame(){
@@ -1341,9 +1568,11 @@ function startGame(){
   G.ctx=canvas.getContext('2d',{alpha:false});
 
   // 3. Oyun state'ini sıfırla
+  // Zorluk HP çarpanı
+  const _dhp=Math.floor(100*(G._diffHpMult||1));
   G.player={
     x:WORLD_W/2, y:WORLD_H/2,
-    hp:100, maxHp:100, mp:50, maxMp:50,
+    hp:_dhp, maxHp:_dhp, mp:50, maxMp:50,
     xp:0, xpNext:150, level:1, sp:0,
     speed:2.2, atk:14, def:5,
     vx:0, vy:0, invincible:0,
@@ -1369,6 +1598,8 @@ function startGame(){
   G.skillLevels={};G.sp=0;
   G.selectedElements=G.selectedElements||[];
   G.elemSkillsGained=[];
+  G._waveTotal=10;G._waveSpawned=0;G._prevWaveCount=10;
+  // diffMult ve settings oyun boyunca korunur
   G._stars=null;G._meteors=[];G._magnetActive=0;G._galaxyNebulae=null;
   G._shootingStars=[];
   // Kamera: oyuncu merkezi ekranın ortasında
@@ -1389,7 +1620,9 @@ function startGame(){
 
   const elemNames=(G.selectedElements||[]).map(id=>ELEMENTS.find(e=>e.id===id)?.icon||'').join('');
   showMsg('◈ '+(playerName||'ANONIM')+' '+elemNames+' seçti! Savaş başlıyor!');
-  AU.resumeMusic();
+  // Kat müziğini başlat
+  const _floorTheme=G.floor<=3?'floor1':G.floor<=6?'floor2':'floor3';
+  AU.changeMusic(_floorTheme);
 }
 
 // ══════════════════════════════
@@ -1444,6 +1677,55 @@ function setupControls(){
     G.joystick.active=false;G.joystick.dx=0;G.joystick.dy=0;
     jb.style.display='none';
   };
+
+  // ── 2. JOYSTICK: Ateş ──
+  const fjz=document.getElementById('fireJoyZone');
+  const fjb=document.getElementById('fireJoyBase');
+  const fjk=document.getElementById('fireJoyKnob');
+  const FJR=50;
+  let _fj={active:false,id:-1,cx:0,cy:0,dx:0,dy:0};
+
+  function _updateFireJoyVisibility(){
+    const manual=G.settings&&G.settings.manualShootJoy;
+    fjz.style.display=manual?'block':'none';
+    fjb.style.display=manual?'block':'none';
+  }
+  _updateFireJoyVisibility();
+
+  fjz.ontouchstart=e=>{
+    e.preventDefault();
+    if(!G.running||G.gameOver||G.paused)return;
+    const t=e.changedTouches[0];
+    _fj={active:true,id:t.identifier,cx:t.clientX,cy:t.clientY,dx:0,dy:0};
+    fjb.style.right=(window.innerWidth-t.clientX-FJR/2)+'px';
+    fjb.style.bottom=(window.innerHeight-t.clientY-FJR/2)+'px';
+    fjb.style.transform='';
+    fjk.style.transform='translate(-50%,-50%)';
+  };
+  fjz.ontouchmove=e=>{
+    e.preventDefault();
+    if(!_fj.active)return;
+    for(const t of e.changedTouches){
+      if(t.identifier===_fj.id){
+        const dx=t.clientX-_fj.cx,dy=t.clientY-_fj.cy;
+        const d=Math.hypot(dx,dy)||1;
+        _fj.dx=dx/d*Math.min(d/FJR,1);
+        _fj.dy=dy/d*Math.min(d/FJR,1);
+        G._fireDir={dx:_fj.dx,dy:_fj.dy,manual:true};
+        fjk.style.transform=`translate(calc(-50% + ${_fj.dx*FJR}px),calc(-50% + ${_fj.dy*FJR}px))`;
+      }
+    }
+  };
+  fjz.ontouchend=fjz.ontouchcancel=e=>{
+    for(const t of e.changedTouches){
+      if(_fj.active&&t.identifier===_fj.id){
+        _fj.active=false;_fj.dx=0;_fj.dy=0;
+        G._fireDir=null;
+        fjk.style.transform='translate(-50%,-50%)';
+      }
+    }
+  };
+  window._updateFireJoyVisibility=_updateFireJoyVisibility;
 }
 
 // ══════════════════════════════
@@ -1452,23 +1734,28 @@ function setupControls(){
 function autoFire(){
   if(G.enemies.length===0)return;
   const p=G.player;
-  let target=null,minD=1400;
-  if(G.boss&&G.boss.hp>0){target=G.boss;}
-  else G.enemies.forEach(e=>{const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<minD){minD=d;target=e;}});
-  if(!target)return;
-  const dx=target.x-p.x,dy=target.y-p.y;
-  // Bullet color from selected elements
+  let dx,dy;
+  // Manuel ateş joystick aktifse — o yönde ateş et
+  if(G._fireDir&&G._fireDir.manual&&(Math.abs(G._fireDir.dx)>0.1||Math.abs(G._fireDir.dy)>0.1)){
+    dx=G._fireDir.dx;dy=G._fireDir.dy;
+  } else {
+    // Oto hedefleme — en yakın düşman/boss
+    let target=null,minD=1600;
+    if(G.boss&&G.boss.hp>0){target=G.boss;}
+    else G.enemies.forEach(e=>{const d=Math.hypot(e.x-p.x,e.y-p.y);if(d<minD){minD=d;target=e;}});
+    if(!target)return;
+    dx=target.x-p.x;dy=target.y-p.y;
+  }
   let bCol='#00f5ff';
   const _selElems=(G.selectedElements||[]);
-  if(_selElems.length>0){
-    const _e=ELEMENTS.find(e=>e.id===_selElems[0]);
-    if(_e)bCol=_e.col;
-  }
+  if(_selElems.length>0){const _e=ELEMENTS.find(e=>e.id===_selElems[0]);if(_e)bCol=_e.col;}
   const shots=1+(p.extraBullets||0);
+  const len=Math.hypot(dx,dy)||1;
   for(let i=0;i<shots;i++){
-    const spread=(i-(shots-1)/2)*0.18;const angle=Math.atan2(dy,dx)+spread;
-    G.bullets.push({x:p.x,y:p.y,vx:Math.cos(angle)*7,vy:Math.sin(angle)*7,
-      dmg:Math.floor(p.atk*(.9+Math.random()*.3)),life:105,owner:'player',col:bCol,r:5});
+    const spread=(i-(shots-1)/2)*0.18;
+    const angle=Math.atan2(dy/len,dx/len)+spread;
+    G.bullets.push({x:p.x,y:p.y,vx:Math.cos(angle)*7.5,vy:Math.sin(angle)*7.5,
+      dmg:Math.floor(p.atk*(.9+Math.random()*.3)),life:110,owner:'player',col:bCol,r:5});
   }
   AU.shoot();
 }
@@ -1531,7 +1818,7 @@ function dealDamage(enemy,dmg,sx,sy){
 function killEnemy(enemy){
   const idx=G.enemies.indexOf(enemy);if(idx<0)return;
   G.enemies.splice(idx,1);
-  const p=G.player;p.xp+=enemy.dropXp;p.score+=enemy.dropXp*2;p.kills++;
+  const p=G.player;p.xp+=Math.floor(enemy.dropXp*(G._diffXpMult||1));p.score+=enemy.dropXp*2;p.kills++;
   if(p.lifesteal>0)p.hp=Math.min(p.maxHp,p.hp+enemy.dropXp*p.lifesteal);
   // Pickup drop
   if(Math.random()<.10)G.pickups.push({x:enemy.x,y:enemy.y,type:Math.random()<.45?'hp':'mp',r:9,alive:true});
@@ -1541,16 +1828,27 @@ function killEnemy(enemy){
   spawnParticles(enemy.x,enemy.y,['#ff6b35','#ffd60a'][enemy.tier-1]||'#ff006e',12);
   AU.die();
   checkLevelUp();updateHUD();
-  if(G.enemies.filter(e=>!e.isBoss).length===0&&!G.waveCleared&&!G.bossActive){
+  // Kalan enemy yoksa — daha spawnlanacak var mı?
+  const nonBossLeft=G.enemies.filter(e=>!e.isBoss).length;
+  if(nonBossLeft<8&&G._waveSpawned<(G._waveTotal||0)&&!G.bossActive){
+    _spawnBatch(Math.min(10,G._waveTotal-G._waveSpawned));
+  }
+  if(G.enemies.filter(e=>!e.isBoss).length===0&&(G._waveSpawned>=(G._waveTotal||0))&&!G.waveCleared&&!G.bossActive){
     G.waveCleared=true;
     const b=document.getElementById('clearBanner');b.className='normal';b.textContent='★ DALGA '+G.wave+' TEMİZLENDİ ★';b.classList.add('show');
     setTimeout(()=>b.classList.remove('show'),2000);
-    setTimeout(()=>{G.wave++;if(shouldSpawnBoss())showBossIntro();else spawnWave();},3000);
+    setTimeout(()=>{
+      G.wave++;
+      if(G.wave>10) showBossIntro(); // 10 dalga sonrası boss
+      else spawnWave();
+    },3000);
   }
 }
 
 function checkLevelUp(){
   const p=G.player;
+  // Zorluk XP çarpanı — zor zorlukta daha hızlı levella
+  const xpBonus=G._diffXpMult||1;
   while(p.xp>=p.xpNext){
     p.xp-=p.xpNext;p.xpNext=Math.floor(p.xpNext*1.45);
     p.level++;
@@ -1667,10 +1965,12 @@ function updateHUD(){
   const xpLbl=document.getElementById('xpLbl');
   if(xpLbl)xpLbl.textContent='LV'+p.level;
   const bossCount=G.bossKillThisFloor||0;
-  document.getElementById('floorTxt').textContent='KAT '+G.floor+(G.bossActive?' 👹':' ['+bossCount+'/3]');
+  document.getElementById('floorTxt').textContent='KAT '+G.floor+(G.bossActive?' 👹':' W'+G.wave+'/10');
   document.getElementById('scoreTxt').textContent=p.score+' PTS · 💰'+(p.gold||0);
   const eIcons=(G.selectedElements||[]).map(id=>ELEMENTS.find(e=>e.id===id)?.icon||'').join('');
-  document.getElementById('lvTxt').textContent='LV '+p.level+' '+eIcons+' W'+G.wave;
+  const _d=typeof DIFFICULTIES!=='undefined'?DIFFICULTIES.find(x=>x.id===_selectedDiff):null;
+  const _dIcon=_d?_d.icon:'🔵';
+  document.getElementById('lvTxt').textContent='LV '+p.level+' '+eIcons+' '+_dIcon;
   // CD elementleri gizli, sadece varsa güncelle
   [{el:'bcdD',cd:p.dashCd},{el:'bcd1',cd:p.sk1Cd},{el:'bcd2',cd:p.sk2Cd},{el:'bcd3',cd:p.sk3Cd}].forEach(x=>{const el=document.getElementById(x.el);if(el)el.textContent=x.cd>0?(x.cd/60).toFixed(1)+'s':'';});
 }
@@ -1714,9 +2014,11 @@ function update(dt){
   if(p.hpRegen>0&&p.hp<p.maxHp)p.hp=Math.min(p.maxHp,p.hp+p.hpRegen*dt);
   p.autoFireCd-=dt;
   if(p.autoFireCd<=0&&G.enemies.length>0){p.autoFireCd=p.autoFireRate;autoFire();}
-  // Auto skills
+  // Auto skills — sadece yetenek kazanıldıysa ve AUTO mod açıksa
+  const _autoMode=G.settings&&G.settings.autoSkill!==false;
   const anyE=G.enemies.length>0;
-  if(anyE){
+  const _hasSkills=(G.elemSkillsGained||[]).length>0;
+  if(anyE&&_autoMode&&_hasSkills){
     const near=G.enemies.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<320).length;
     const vNear=G.enemies.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<210).length;
     const mid=G.enemies.filter(e=>Math.hypot(e.x-p.x,e.y-p.y)<470).length;
