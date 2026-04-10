@@ -20,8 +20,16 @@ function buildScanlinePattern(){
   const c=off.getContext('2d'); c.fillStyle='#000'; c.fillRect(0,2,2,1);
   scanlinePattern=ctx.createPattern(off,'repeat');
 }
-function resize(){ canvas.width=wrapper.offsetWidth; canvas.height=wrapper.offsetHeight; buildScanlinePattern(); }
-resize(); window.addEventListener('resize',resize);
+function resize(){
+  const W=window.innerWidth, H=window.innerHeight;
+  wrapper.style.width=W+'px'; wrapper.style.height=H+'px';
+  canvas.width=W; canvas.height=H;
+  buildScanlinePattern();
+  if(stars&&stars.length) initStars();
+}
+setTimeout(resize,0);
+window.addEventListener('resize',resize);
+if(window.visualViewport) window.visualViewport.addEventListener('resize',resize);
 
 // ── OYUN DURUMU ───────────────────────────────────────
 let state='menu';
@@ -254,12 +262,14 @@ function update(dt, rawDt){
           wave++; document.getElementById('waveEl').textContent=wave;
           waveCooldown=1800; wavePhase='cooldown';
           checkDailyMission('wave5',1);
-          onWavePassive(); // Pasif yetenek (Titan kalkan kontrolü)
+          onWavePassive();
         }
       }
-    } else if(wavePhase==='cooldown'){
-      waveCooldown-=rawDt; if(waveCooldown<=0) startWave();
     }
+  }
+  // Cooldown her durumda çalışsın (boss ölünce aynı frame'de devreye girsin)
+  if(wavePhase==='cooldown'){
+    waveCooldown-=rawDt; if(waveCooldown<=0) startWave();
   }
 
   // Boss
@@ -396,6 +406,7 @@ function draw(){
 
 // ── BAŞLANGIÇ (menü döngüsü) ──────────────────────────
 injectHangarHTML();   // hangar HTML'sini DOM'a ekle
+resize();             // canvas boyutunu hemen set et
 initStars();
 (function menuLoop(){
   if(state!=='menu') return;
