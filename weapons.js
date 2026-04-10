@@ -8,6 +8,9 @@ const WEAPON_COLORS = {standard:'#00ffcc',    spread:'#ffcc00',    laser:'#ff446
 
 function fireWeapon(){
   const c = WEAPON_COLORS[currentWeapon];
+  if(currentWeapon==='laser') sfxShootLaser();
+  else if(currentWeapon==='missile') sfxShootMissile();
+  else sfxShoot();
   if(currentWeapon==='standard'){
     shootBullet(player.x, player.y-player.h/2, -640, c, 4, 16, 1);
     if(rapidFire>0||shipLevel>=2){

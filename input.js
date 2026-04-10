@@ -68,4 +68,5 @@ function tryDash(){
   dashActive=200; dashCooldown=1500;
   invincible=Math.max(invincible,220);
   explode(player.x,player.y,player.color,8);
+  sfxDash();
 }

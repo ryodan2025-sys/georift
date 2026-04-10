@@ -66,7 +66,7 @@ function spawnPowerup(x,y){
 }
 
 function applyPowerup(p){
-  explode(p.x,p.y,p.color,15);
+  explode(p.x,p.y,p.color,15); sfxPowerup();
   if(p.type==='shield'){ shieldActive=true; setTimeout(()=>shieldActive=false,6000); }
   else if(p.type==='rapid'){ rapidFire=5000; }
   else if(p.type==='life'){ lives=Math.min(lives+1,5); renderLives(); }
