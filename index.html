@@ -8,144 +8,132 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
 /* ── TEMEL ──────────────────────────────────────────── */
-*{margin:0;padding:0;box-sizing:border-box;touch-action:none;}
+*{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;}
-body{display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;}
+body{font-family:'Orbitron',monospace;}
 #gameWrapper{position:relative;width:100vw;height:100dvh;overflow:hidden;}
-canvas{display:block;width:100%;height:100%;}
+canvas{display:block;width:100%;height:100%;touch-action:none;}
 
-/* ── OYUN İÇİ UI ────────────────────────────────────── */
+/* ── HUD ────────────────────────────────────────────── */
 #ui{position:absolute;top:0;left:0;right:0;padding:10px 14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:10;}
 .stat{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2.8vw,14px);color:#00ffcc;text-shadow:0 0 8px #00ffcc;letter-spacing:1px;}
 .stat span{color:#fff;font-size:1.3em;}
 #livesBar{display:flex;gap:3px;justify-content:flex-end;}
 .heart{font-size:clamp(12px,3.2vw,17px);filter:drop-shadow(0 0 4px #ff4466);}
-
-#comboEl{position:absolute;top:64px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(14px,4.5vw,24px);color:#ffcc00;text-shadow:0 0 15px #ffcc00,0 0 30px #ff8800;pointer-events:none;z-index:12;opacity:0;transition:opacity 0.3s;letter-spacing:2px;white-space:nowrap;}
-#weaponEl{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.5vw,12px);color:#00ffcc;text-shadow:0 0 6px #00ffcc;pointer-events:none;z-index:12;letter-spacing:2px;}
-#wave-indicator{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(20px,6vw,34px);font-weight:900;color:#fff;text-shadow:0 0 20px #ff6600,0 0 40px #ff3300;letter-spacing:3px;pointer-events:none;z-index:15;opacity:0;transition:opacity 0.3s;text-align:center;}
+#comboEl{position:absolute;top:64px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(14px,4.5vw,24px);color:#ffcc00;pointer-events:none;z-index:12;opacity:0;transition:opacity 0.3s;letter-spacing:2px;white-space:nowrap;}
+#weaponEl{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.5vw,12px);color:#00ffcc;pointer-events:none;z-index:12;letter-spacing:2px;}
+#waveIndicator{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(20px,6vw,34px);font-weight:900;color:#fff;text-shadow:0 0 20px #ff6600,0 0 40px #ff3300;letter-spacing:3px;pointer-events:none;z-index:15;opacity:0;transition:opacity 0.3s;text-align:center;}
 #dailyEl{position:absolute;bottom:30px;left:6px;right:6px;font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.8vw,9px);color:rgba(255,200,0,0.6);pointer-events:none;z-index:12;line-height:1.7;}
-#slowmoFlash{position:absolute;inset:0;background:rgba(255,255,255,0);pointer-events:none;z-index:14;transition:background 0.12s;}
-
-/* Pause butonu */
-#pauseBtn{position:absolute;top:10px;right:14px;z-index:16;background:transparent;border:1px solid rgba(0,255,204,0.4);color:rgba(0,255,204,0.75);font-family:'Orbitron',monospace;font-size:11px;padding:5px 10px;cursor:pointer;letter-spacing:2px;display:none;}
-#pauseBtn.visible{display:block;}
-#pauseBtn:active{background:rgba(0,255,204,0.15);}
-
-/* Mute butonu (menüde) */
-#menuMuteBtn{position:absolute;bottom:8px;right:10px;z-index:22;background:transparent;border:none;color:rgba(0,255,204,0.45);font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2vw,11px);cursor:pointer;letter-spacing:1px;}
+#slowmoFlash{position:absolute;inset:0;background:transparent;pointer-events:none;z-index:14;transition:background 0.12s;}
 
 /* ── JOYSTICK ───────────────────────────────────────── */
-#touchZone{position:absolute;inset:0;z-index:10;touch-action:none;}
-#joystickBase{position:absolute;width:110px;height:110px;border-radius:50%;border:2px solid rgba(0,255,204,0.28);background:rgba(0,255,204,0.04);pointer-events:none;display:none;transform:translate(-50%,-50%);z-index:11;}
-#joystickKnob{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffcc,#007755);box-shadow:0 0 16px rgba(0,255,204,0.7);pointer-events:none;transform:translate(-50%,-50%);z-index:12;display:none;}
+#touchZone{position:absolute;inset:0;z-index:8;touch-action:none;}
+#joystickBase{position:absolute;width:110px;height:110px;border-radius:50%;border:2px solid rgba(0,255,204,0.28);background:rgba(0,255,204,0.04);pointer-events:none;display:none;transform:translate(-50%,-50%);z-index:9;}
+#joystickKnob{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffcc,#007755);box-shadow:0 0 16px rgba(0,255,204,0.7);pointer-events:none;transform:translate(-50%,-50%);z-index:9;display:none;}
 
-/* ── ORTAK OVERLAY ALTYAPI ──────────────────────────── */
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;gap:12px;padding:20px 10px;overflow-y:auto;}
-.overlay.hidden{display:none;}
-.overlay-bg{background:rgba(0,0,10,0.92);backdrop-filter:blur(4px);}
+/* ── PAUSE BUTONU ────────────────────────────────────── */
+#pauseBtn{position:absolute;top:10px;right:14px;z-index:50;background:rgba(0,0,0,0.5);border:1px solid rgba(0,255,204,0.5);color:#00ffcc;font-family:'Orbitron',monospace;font-size:12px;padding:7px 12px;cursor:pointer;letter-spacing:2px;display:none;border-radius:3px;touch-action:manipulation;}
+#pauseBtn.show{display:block;}
 
-/* ── ORTAK BUTON ────────────────────────────────────── */
-.btn{padding:13px 40px;border:2px solid #00ffcc;background:transparent;color:#00ffcc;font-family:'Orbitron',monospace;font-size:clamp(12px,3.5vw,16px);font-weight:700;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:all 0.18s;box-shadow:0 0 20px rgba(0,255,204,0.25);-webkit-tap-highlight-color:transparent;}
-.btn:hover{background:rgba(0,255,204,0.08);}
-.btn:active{background:rgba(0,255,204,0.18);transform:scale(0.96);}
+/* ── ORTAK OVERLAY ───────────────────────────────────── */
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;gap:14px;padding:20px 16px;overflow-y:auto;background:rgba(0,0,12,0.93);backdrop-filter:blur(5px);}
+.overlay.hidden{display:none !important;}
+
+/* ── BUTON ───────────────────────────────────────────── */
+.btn{
+  padding:14px 44px;border:2px solid #00ffcc;background:transparent;color:#00ffcc;
+  font-family:'Orbitron',monospace;font-size:clamp(13px,3.8vw,17px);font-weight:700;
+  letter-spacing:3px;cursor:pointer;text-transform:uppercase;
+  border-radius:2px;touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(0,255,204,0.2);
+  box-shadow:0 0 18px rgba(0,255,204,0.2);
+}
+.btn:active,.btn:focus{background:rgba(0,255,204,0.18);outline:none;}
 .btn:disabled{opacity:0.3;cursor:not-allowed;border-color:#444;color:#444;box-shadow:none;}
-.btn-sm{padding:9px 22px;font-size:clamp(10px,2.8vw,13px);letter-spacing:2px;}
-.btn-dim{border-color:rgba(0,255,204,0.35);color:rgba(0,255,204,0.55);}
+.btn-sm{padding:10px 26px;font-size:clamp(11px,3vw,14px);letter-spacing:2px;border-color:rgba(0,255,204,0.45);color:rgba(0,255,204,0.7);}
 
-/* ── ANA MENÜ ───────────────────────────────────────── */
-#menuOverlay{}
-.title-main{font-size:clamp(30px,10vw,58px);font-weight:900;color:#fff;letter-spacing:4px;text-align:center;text-shadow:0 0 24px #00ffcc,0 0 48px #0077ff;line-height:1;margin:8px 0;}
+/* ── MENÜ ────────────────────────────────────────────── */
+.title-main{font-size:clamp(34px,11vw,62px);font-weight:900;color:#fff;letter-spacing:4px;text-align:center;text-shadow:0 0 24px #00ffcc,0 0 50px #0077ff;line-height:1;margin:6px 0;}
 .title-sub{font-size:clamp(9px,2.5vw,13px);color:#00ffcc;letter-spacing:7px;font-family:'Share Tech Mono',monospace;text-shadow:0 0 8px #00ffcc;}
-.menu-buttons{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:6px;}
-.score-display{font-family:'Share Tech Mono',monospace;font-size:clamp(11px,3vw,15px);color:#ffcc00;text-shadow:0 0 10px #ffcc00;text-align:center;line-height:1.9;white-space:pre-line;}
-#scoreboardEl{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.2vw,11px);color:rgba(0,255,204,0.65);text-align:center;line-height:2;border-top:1px solid rgba(0,255,204,0.2);padding-top:8px;width:85%;white-space:pre-line;}
+.score-display{font-family:'Share Tech Mono',monospace;font-size:clamp(12px,3.2vw,16px);color:#ffcc00;text-align:center;line-height:1.9;white-space:pre-line;}
+#scoreboardEl{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.3vw,12px);color:rgba(0,255,204,0.65);text-align:center;line-height:2;border-top:1px solid rgba(0,255,204,0.2);padding-top:8px;width:90%;white-space:pre-line;}
 .hint{font-family:'Share Tech Mono',monospace;font-size:clamp(8px,2vw,10px);color:rgba(0,255,204,0.38);text-align:center;letter-spacing:1px;line-height:2.1;}
+.menu-row{display:flex;flex-direction:column;align-items:center;gap:10px;}
 
-/* ── PAUSE OVERLAY ──────────────────────────────────── */
-#pauseOverlay{z-index:30;}
-.pause-box{display:flex;flex-direction:column;align-items:center;gap:14px;}
-.pause-title{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,3vw,14px);color:#00ffcc;letter-spacing:6px;text-shadow:0 0 10px #00ffcc;}
-#pauseMuteBtn{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.5vw,12px);color:rgba(0,255,204,0.5);cursor:pointer;margin-top:4px;letter-spacing:2px;background:none;border:none;-webkit-tap-highlight-color:transparent;}
+/* ── PAUSE ───────────────────────────────────────────── */
+.pause-title{font-family:'Share Tech Mono',monospace;font-size:clamp(11px,3vw,15px);color:#00ffcc;letter-spacing:6px;text-shadow:0 0 10px #00ffcc;}
+#pauseMuteBtn{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2.5vw,13px);color:rgba(0,255,204,0.5);cursor:pointer;margin-top:6px;background:none;border:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;letter-spacing:2px;}
 
-/* ── HANGAR OVERLAY ─────────────────────────────────── */
-#hangarOverlay{z-index:25;background:rgba(0,0,12,0.97);backdrop-filter:blur(5px);}
-.hangar-wrap{width:96%;max-height:96%;display:flex;flex-direction:column;gap:8px;}
+/* ── HANGAR ──────────────────────────────────────────── */
+.hangar-wrap{width:96%;max-height:94vh;display:flex;flex-direction:column;gap:10px;}
 .hangar-header{text-align:center;}
 .hangar-welcome{font-family:'Share Tech Mono',monospace;font-size:clamp(8px,2vw,10px);color:rgba(0,255,204,0.5);letter-spacing:2px;margin-top:2px;}
-.hangar-body{display:flex;gap:8px;flex:1;min-height:0;}
-.hangar-left{display:flex;flex-direction:column;gap:5px;width:34%;}
-.hangar-center{display:flex;flex-direction:column;align-items:center;gap:6px;width:30%;}
+.hangar-body{display:flex;gap:8px;flex:1;}
+.hangar-left{display:flex;flex-direction:column;gap:6px;width:33%;}
+.hangar-center{display:flex;flex-direction:column;align-items:center;gap:6px;width:28%;}
 .hangar-right{flex:1;display:flex;flex-direction:column;gap:4px;font-family:'Share Tech Mono',monospace;}
-.hangar-footer{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding-bottom:4px;}
-.hangar-ship-btn{padding:8px 10px;border:1px solid rgba(0,255,204,0.22);background:rgba(0,255,204,0.04);cursor:pointer;transition:all 0.15s;border-radius:3px;-webkit-tap-highlight-color:transparent;}
-.hangar-ship-btn:active{background:rgba(0,255,204,0.12);}
-.hangar-ship-btn.selected{border-color:#00ffcc;background:rgba(0,255,204,0.13);box-shadow:0 0 10px rgba(0,255,204,0.25);}
-.hangar-ship-btn.locked{opacity:0.4;cursor:not-allowed;}
-.hship-name{font-family:'Orbitron',monospace;font-size:clamp(9px,2.8vw,13px);color:#00ffcc;display:block;letter-spacing:2px;}
-.hship-lock{font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.8vw,9px);color:rgba(255,120,0,0.7);display:block;margin-top:2px;}
+.hangar-footer{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.ship-btn{padding:8px 10px;border:1px solid rgba(0,255,204,0.22);background:rgba(0,255,204,0.04);cursor:pointer;border-radius:3px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,255,204,0.1);}
+.ship-btn.sel{border-color:#00ffcc;background:rgba(0,255,204,0.13);box-shadow:0 0 10px rgba(0,255,204,0.25);}
+.ship-btn.locked{opacity:0.4;cursor:not-allowed;}
+.ship-btn .sname{font-family:'Orbitron',monospace;font-size:clamp(9px,2.8vw,13px);color:#00ffcc;display:block;letter-spacing:2px;}
+.ship-btn .slock{font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.8vw,9px);color:rgba(255,120,0,0.7);display:block;margin-top:2px;}
 #hangarCanvas{border:1px solid rgba(0,255,204,0.18);border-radius:4px;background:rgba(0,0,20,0.6);}
-.hangar-skins{display:flex;gap:6px;margin-top:2px;}
-.skin-btn{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.18);cursor:pointer;transition:all 0.13s;padding:0;-webkit-tap-highlight-color:transparent;}
-.skin-btn.skin-active{border-color:#fff;transform:scale(1.25);}
-.hangar-ship-name{font-family:'Orbitron',monospace;font-size:clamp(13px,4vw,19px);font-weight:900;color:#fff;letter-spacing:3px;text-shadow:0 0 10px #00ffcc;}
-.hangar-ship-desc{font-size:clamp(7px,1.9vw,9px);color:rgba(200,200,255,0.65);line-height:1.5;margin-top:2px;}
-.hangar-passive{font-size:clamp(8px,2.1vw,10px);color:#ffcc00;text-shadow:0 0 6px #ffcc00;margin-top:4px;}
-.hangar-mult{font-size:clamp(8px,1.9vw,10px);color:rgba(0,255,204,0.65);margin-top:2px;}
-.hangar-stats{display:flex;flex-direction:column;gap:3px;margin-top:6px;}
-.stat-row{display:flex;align-items:center;gap:6px;}
-.stat-label{font-size:clamp(7px,1.9vw,9px);color:rgba(0,255,204,0.55);width:32px;}
-.stat-bar{font-size:clamp(9px,2.2vw,12px);color:#00ffcc;letter-spacing:1px;text-shadow:0 0 5px #00ffcc;}
+.skins{display:flex;gap:6px;margin-top:2px;}
+.skbtn{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.18);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.skbtn.active{border-color:#fff;transform:scale(1.25);}
+.hship-name{font-family:'Orbitron',monospace;font-size:clamp(13px,4vw,19px);font-weight:900;color:#fff;letter-spacing:3px;text-shadow:0 0 10px #00ffcc;}
+.hship-desc{font-size:clamp(7px,1.9vw,9px);color:rgba(200,200,255,0.65);line-height:1.5;margin-top:2px;}
+.hship-passive{font-size:clamp(8px,2.1vw,10px);color:#ffcc00;margin-top:4px;}
+.hship-mult{font-size:clamp(8px,1.9vw,10px);color:rgba(0,255,204,0.65);margin-top:2px;}
+.hstats{display:flex;flex-direction:column;gap:3px;margin-top:6px;}
+.hstat-row{display:flex;align-items:center;gap:6px;}
+.hstat-lbl{font-size:clamp(7px,1.9vw,9px);color:rgba(0,255,204,0.55);width:32px;}
+.hstat-bar{font-size:clamp(9px,2.2vw,12px);color:#00ffcc;letter-spacing:1px;text-shadow:0 0 5px #00ffcc;}
 </style>
 </head>
 <body>
 <div id="gameWrapper">
   <canvas id="c"></canvas>
 
-  <!-- Oyun içi HUD -->
+  <!-- HUD -->
   <div id="ui">
     <div class="stat">SKOR<br><span id="scoreEl">0</span></div>
-    <div class="stat" style="text-align:center;">DALGA<br><span id="waveEl">1</span></div>
-    <div style="text-align:right;">
+    <div class="stat" style="text-align:center">DALGA<br><span id="waveEl">1</span></div>
+    <div style="text-align:right">
       <div class="stat">CAN</div>
       <div id="livesBar"></div>
     </div>
   </div>
-  <button id="pauseBtn">II PAUSE</button>
+  <button id="pauseBtn">II</button>
   <div id="comboEl"></div>
   <div id="weaponEl">● STANDART</div>
-  <div id="wave-indicator"></div>
+  <div id="waveIndicator"></div>
   <div id="dailyEl"></div>
   <div id="slowmoFlash"></div>
 
-  <!-- ── ANA MENÜ ── -->
-  <div id="menuOverlay" class="overlay overlay-bg">
+  <!-- ANA MENÜ -->
+  <div id="menuOverlay" class="overlay">
     <div class="title-sub">— UZAY MİSYONU —</div>
     <div class="title-main">GEO<br>RIFT</div>
     <div class="score-display" id="overlayScore" style="display:none"></div>
     <div id="scoreboardEl" style="display:none"></div>
-    <div class="menu-buttons">
+    <div class="menu-row">
       <button class="btn" id="playBtn">BAŞLAT</button>
-      <button class="btn btn-sm btn-dim" id="hangarBtn">⚙ HANGAR</button>
+      <button class="btn btn-sm" id="hangarBtn">⚙ HANGAR</button>
     </div>
-    <div class="hint">
-      📱 Sürükle → hareket &amp; ateş &nbsp;|&nbsp; Çift dokun → DASH<br>
-      🖥️ WASD + Boşluk + Shift(dash) + P(pause)
-    </div>
-    <button id="menuMuteBtn">🔊 SES</button>
+    <div class="hint">📱 Sürükle=hareket&amp;ateş · Çift dok=DASH<br>🖥 WASD+Boşluk+Shift+P</div>
   </div>
 
-  <!-- ── PAUSE OVERLAY ── -->
-  <div id="pauseOverlay" class="overlay overlay-bg hidden">
-    <div class="pause-box">
-      <div class="pause-title">— DURAKLATILDI —</div>
-      <button class="btn" id="resumeBtn">DEVAM ET</button>
-      <button class="btn btn-sm btn-dim" id="quitBtn">ANA MENÜ</button>
-      <button id="pauseMuteBtn">🔊 SES</button>
-    </div>
+  <!-- PAUSE -->
+  <div id="pauseOverlay" class="overlay hidden">
+    <div class="pause-title">— DURAKLATILDI —</div>
+    <button class="btn" id="resumeBtn">DEVAM ET</button>
+    <button class="btn btn-sm" id="quitBtn">ANA MENÜ</button>
+    <button id="pauseMuteBtn">🔊 SES</button>
   </div>
 
-  <!-- ── HANGAR OVERLAY ── -->
+  <!-- HANGAR -->
   <div id="hangarOverlay" class="overlay hidden">
     <div class="hangar-wrap">
       <div class="hangar-header">
@@ -153,35 +141,32 @@ canvas{display:block;width:100%;height:100%;}
         <div id="hangarWelcome" class="hangar-welcome"></div>
       </div>
       <div class="hangar-body">
-        <div class="hangar-left">
-          <div id="hangarShipList"></div>
-        </div>
+        <div class="hangar-left" id="hangarShipList"></div>
         <div class="hangar-center">
-          <canvas id="hangarCanvas" width="150" height="150"></canvas>
-          <div id="hangarSkins" class="hangar-skins"></div>
+          <canvas id="hangarCanvas" width="140" height="140"></canvas>
+          <div id="hangarSkins" class="skins"></div>
         </div>
         <div class="hangar-right">
-          <div id="hangarShipName" class="hangar-ship-name"></div>
-          <div id="hangarShipDesc" class="hangar-ship-desc"></div>
-          <div id="hangarPassive" class="hangar-passive"></div>
-          <div id="hangarMult" class="hangar-mult"></div>
-          <div id="hangarStats" class="hangar-stats"></div>
+          <div id="hShipName" class="hship-name"></div>
+          <div id="hShipDesc" class="hship-desc"></div>
+          <div id="hPassive"  class="hship-passive"></div>
+          <div id="hMult"     class="hship-mult"></div>
+          <div id="hStats"    class="hstats"></div>
         </div>
       </div>
       <div class="hangar-footer">
         <button class="btn" id="hangarLaunch">UÇUŞA GEÇ</button>
-        <button class="btn btn-sm btn-dim" id="hangarBack">GERİ</button>
+        <button class="btn btn-sm" id="hangarBack">GERİ</button>
       </div>
     </div>
   </div>
 
-  <!-- Joystick -->
+  <!-- Joystick (oyun içi) -->
   <div id="joystickBase"></div>
   <div id="joystickKnob"></div>
   <div id="touchZone"></div>
 </div>
 
-<!-- Modüller – bağımlılık sırasına göre -->
 <script src="audio.js"></script>
 <script src="ships.js"></script>
 <script src="scoreboard.js"></script>
