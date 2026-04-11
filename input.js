@@ -13,8 +13,8 @@ const JRADIUS=58;
 let lastTapTime=0;
 
 touchZone.addEventListener('touchstart',e=>{
+  if(state!=='playing'){ e.stopPropagation(); return; }
   e.preventDefault();
-  if(state!=='playing') return;
   const now=Date.now();
   if(now-lastTapTime<300){ tryDash(); }
   lastTapTime=now;
@@ -31,6 +31,7 @@ touchZone.addEventListener('touchstart',e=>{
 },{passive:false});
 
 touchZone.addEventListener('touchmove',e=>{
+  if(state!=='playing') return;
   e.preventDefault();
   for(const t of e.changedTouches){
     if(t.identifier!==joystick.id) continue;
@@ -46,6 +47,7 @@ touchZone.addEventListener('touchmove',e=>{
 },{passive:false});
 
 ['touchend','touchcancel'].forEach(ev=>touchZone.addEventListener(ev,e=>{
+  if(state!=='playing'){ joystick.active=false; joystick.dx=0; joystick.dy=0; joystick.moving=false; jBase.style.display='none'; jKnob.style.display='none'; return; }
   e.preventDefault();
   for(const t of e.changedTouches){
     if(t.identifier!==joystick.id) continue;

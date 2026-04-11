@@ -24,14 +24,12 @@ function getShipColorInGame(){
   return player.color;
 }
 
-// Basit renk karıştırma (hex)
+// Basit renk karıştırma (hex → rgb)
 function tintColor(base, t, tint){
-  const parse = hex=>{const v=parseInt(hex.slice(1),16);return[(v>>16)&255,(v>>8)&255,v&255];};
+  if(!base||!base.startsWith('#')) return base||'#00ffcc';
+  const parse=hex=>{const v=parseInt(hex.slice(1),16);return[(v>>16)&255,(v>>8)&255,v&255];};
   const b=parse(base), ti=parse(tint);
-  const r=Math.round(b[0]*(1-t)+ti[0]*t);
-  const g=Math.round(b[1]*(1-t)+ti[1]*t);
-  const bl=Math.round(b[2]*(1-t)+ti[2]*t);
-  return `rgb(${r},${g},${bl})`;
+  return `rgb(${Math.round(b[0]*(1-t)+ti[0]*t)},${Math.round(b[1]*(1-t)+ti[1]*t)},${Math.round(b[2]*(1-t)+ti[2]*t)})`;
 }
 
 // ── GEMİYİ ÇİZ ────────────────────────────────────────

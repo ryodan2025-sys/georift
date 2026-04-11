@@ -50,7 +50,7 @@ function applyWeaponPowerup(){
 }
 
 function resetWeapon(){
-  currentWeapon = 'standard';
-  document.getElementById('weaponEl').textContent=WEAPON_NAMES.standard;
-  document.getElementById('weaponEl').style.color=WEAPON_COLORS.standard;
+  currentWeapon = getSelectedShip().defaultWeapon || 'standard';
+  document.getElementById('weaponEl').textContent=WEAPON_NAMES[currentWeapon];
+  document.getElementById('weaponEl').style.color=WEAPON_COLORS[currentWeapon];
 }
