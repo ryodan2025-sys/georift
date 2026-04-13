@@ -199,7 +199,8 @@ function loop(ts){
   const rawDt=Math.min(ts-lastTime,50);lastTime=ts;
   const dt=slowmo>0?rawDt*.35:rawDt;
   if(slowmo>0) slowmo-=rawDt;
-  update(dt,rawDt);draw();
+  try{ update(dt,rawDt); }catch(e){ console.error('update error:',e); }
+  try{ draw(); }catch(e){ console.error('draw error:',e); }
   requestAnimationFrame(loop);
 }
 

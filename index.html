@@ -32,8 +32,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
 #joystickKnob{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffcc,#007755);box-shadow:0 0 16px rgba(0,255,204,0.7);pointer-events:none;transform:translate(-50%,-50%);z-index:9;display:none;}
 
 /* ── PAUSE BUTONU ────────────────────────────────────── */
-#pauseBtn{position:absolute;top:10px;right:14px;z-index:50;background:rgba(0,0,0,0.5);border:1px solid rgba(0,255,204,0.5);color:#00ffcc;font-family:'Orbitron',monospace;font-size:12px;padding:7px 12px;cursor:pointer;letter-spacing:2px;display:none;border-radius:3px;touch-action:manipulation;}
+#pauseBtn{z-index:50;background:rgba(0,0,0,0.4);border:1px solid rgba(0,255,204,0.5);color:#00ffcc;font-family:'Orbitron',monospace;font-size:11px;padding:5px 10px;cursor:pointer;letter-spacing:2px;display:none;border-radius:3px;touch-action:manipulation;pointer-events:all;}
 #pauseBtn.show{display:block;}
+#ui{pointer-events:none;}
+#pauseBtn{pointer-events:all;}
 
 /* ── ORTAK OVERLAY ───────────────────────────────────── */
 .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;gap:14px;padding:20px 16px;overflow-y:auto;background:rgba(0,0,12,0.93);backdrop-filter:blur(5px);}
@@ -100,12 +102,14 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
   <div id="ui">
     <div class="stat">SKOR<br><span id="scoreEl">0</span></div>
     <div class="stat" style="text-align:center">DALGA<br><span id="waveEl">1</span></div>
-    <div style="text-align:right">
-      <div class="stat">CAN</div>
+    <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="stat">CAN</div>
+        <button id="pauseBtn">II</button>
+      </div>
       <div id="livesBar"></div>
     </div>
   </div>
-  <button id="pauseBtn">II</button>
   <div id="comboEl"></div>
   <div id="weaponEl">● STANDART</div>
   <div id="waveIndicator"></div>

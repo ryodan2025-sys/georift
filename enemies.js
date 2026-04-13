@@ -170,7 +170,7 @@ function updateBoss(s,rawDt){
         explode(boss.x+ox,boss.y+oy,'#cc00ff',20);
         explode(boss.x+ox,boss.y+oy,'#ffffff',8);
       }
-      sfxBossDie(); triggerShake(8); triggerSlowmo(700);
+      sfxBossDie(); triggerShake(8);
       triggerFlash('#cc00ff',.4);
       score+=Math.floor((4000+wave*800)*comboMultiplier());
       spawnPowerup(boss.x-35,boss.y); spawnPowerup(boss.x+35,boss.y); spawnPowerup(boss.x,boss.y+25);
