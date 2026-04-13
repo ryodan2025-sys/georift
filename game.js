@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-//  GAME.JS  –  Ana döngü, menü, pause, update, draw
+//  GAME.JS  –  Ana döngü, menü, pause, update, draw  v8
 // ═══════════════════════════════════════════════════════
 
 const canvas    = document.getElementById('c');
@@ -9,11 +9,10 @@ const jBase     = document.getElementById('joystickBase');
 const jKnob     = document.getElementById('joystickKnob');
 const slowFlash = document.getElementById('slowmoFlash');
 
-// ── CANVAS ───────────────────────────────────────────
 let scanlinePattern=null;
 function buildScanlines(){
   const off=document.createElement('canvas');off.width=2;off.height=3;
-  const c=off.getContext('2d');c.fillStyle='#000';c.fillRect(0,2,2,1);
+  const c=off.getContext('2d');c.fillStyle='rgba(0,0,0,0.35)';c.fillRect(0,2,2,1);
   scanlinePattern=ctx.createPattern(off,'repeat');
 }
 function resize(){
@@ -62,8 +61,13 @@ function updateComboUI(){
     el.textContent=`x${combo} COMBO!`;el.style.opacity='1';
     el.style.fontSize=`clamp(${12+combo}px,${3+combo*.5}vw,${20+combo*2}px)`;
     const c=combo>=8?'#ff0088':combo>=4?'#ff8800':'#ffcc00';
-    el.style.color=c;el.style.textShadow=`0 0 15px ${c},0 0 30px ${c}`;
-  } else {el.style.opacity='0';}
+    el.style.color=c;el.style.textShadow=`0 0 15px ${c},0 0 30px ${c},0 0 60px ${c}`;
+    // Combo animasyonu
+    el.style.transform=`translateX(-50%) scale(${1+Math.min(combo*0.04,0.3)})`;
+  } else {
+    el.style.opacity='0';
+    el.style.transform='translateX(-50%) scale(1)';
+  }
 }
 function comboMultiplier(){return 1+Math.floor(combo/2)*.5;}
 
@@ -95,6 +99,10 @@ function pauseGame(){
   if(state!=='playing')return;
   state='paused';
   document.getElementById('pauseOverlay').classList.remove('hidden');
+  try{
+    const el=document.getElementById('pauseInfo');
+    if(el) el.textContent='SKOR: '+score.toLocaleString()+'  |  DALGA: '+wave+'  |  KİLL: '+sessionKills;
+  }catch(e){}
   try{if(audioReady) musicGain.gain.setTargetAtTime(.08,AC.currentTime,.3);}catch(e){}
 }
 function resumeGame(){
@@ -137,7 +145,7 @@ document.getElementById('pauseMuteBtn').addEventListener('click',doMute);
 // ── DALGA ────────────────────────────────────────────
 function startWave(){
   waveEnemyCount=6+wave*3; waveKilled=0; waveEnemiesLeft=waveEnemyCount;
-  waveSpawnInterval=Math.max(300,1600-wave*80);
+  waveSpawnInterval=Math.max(280,1600-wave*85);
   enemySpawnTimer=0; wavePhase='spawning';
   showWaveText('DALGA '+wave);
   try{sfxWaveStart();}catch(e){}
@@ -146,7 +154,7 @@ function startWave(){
 // ── HASAR ────────────────────────────────────────────
 function hitPlayer(){
   if(invincible>0)return;
-  lives--;renderLives();invincible=2000;resetCombo();
+  lives--;renderLives();invincible=2200;resetCombo();
   explode(player.x,player.y,'#ff4466',22);triggerShake(7);
   triggerFlash('#ff0000',.28);
   try{sfxPlayerHit();}catch(e){}
@@ -172,14 +180,14 @@ function gameOver(){
 function startGame(){
   try{initAudio();}catch(e){}
   const ship=getSelectedShip();
-  score=0;wave=1;lives=ship.lives;sessionKills=0;
+  score=0;wave=1;lives=ship.lives;sessionKills=0;  // wave=1 BUG FIX
   enemies=[];bullets=[];eBullets=[];particles=[];powerups=[];asteroids=[];
   player=createPlayer();shootCooldown=0;invincible=0;shieldActive=false;rapidFire=0;
   bossActive=false;boss=null;wavePhase='spawning';
   combo=0;comboTimer=0;weaponTimer=0;asteroidTimer=7000;
   dashCooldown=0;dashActive=0;slowmo=0;shakeAmt=0;shipLevel=1;
   flashAmt=0;nebulaAngle=0;
-  dailyRewardsGiven={};passiveWaveTracker=0;
+  dailyRewardsGiven={};passiveWaveTracker=0;  // BUG FIX: her oyunda sıfırla
   currentWeapon=ship.defaultWeapon||'standard';
   document.getElementById('weaponEl').textContent=WEAPON_NAMES[currentWeapon];
   document.getElementById('weaponEl').style.color=WEAPON_COLORS[currentWeapon];
@@ -207,7 +215,7 @@ function loop(ts){
   if(slowmo>0) slowmo-=rawDt;
   try{update(dt,rawDt);}catch(err){console.warn('update:',err);}
   try{draw();}catch(err){console.warn('draw:',err);}
-  requestAnimationFrame(loop); // HER ZAMAN DEVAM ET
+  requestAnimationFrame(loop);
 }
 
 // ── UPDATE ───────────────────────────────────────────
@@ -222,7 +230,6 @@ function update(dt,rawDt){
   if(dashCooldown>0) dashCooldown-=rawDt;
   if(dashActive>0){dashActive-=rawDt;player.x+=dashVx*720*s;player.y+=dashVy*720*s;}
 
-  // Hareket
   let mx=0,my=0;
   if(keys['ArrowLeft']||keys['KeyA'])mx-=1;
   if(keys['ArrowRight']||keys['KeyD'])mx+=1;
@@ -234,12 +241,13 @@ function update(dt,rawDt){
   player.x=Math.max(player.w/2,Math.min(canvas.width-player.w/2,player.x));
   player.y=Math.max(player.h/2,Math.min(canvas.height-player.h/2,player.y));
 
-  // Ateş
+  // Shotgun için daha uzun cooldown
+  const shotgunCd = 380;
   const isMov=joystick.active&&joystick.moving;
   const isKey=keys['Space']||keys['KeyZ'];
-  const fcd=currentWeapon==='laser'?70:rapidFire>0?80:200;
+  const fcd=currentWeapon==='laser'?70:currentWeapon==='shotgun'?shotgunCd:rapidFire>0?80:200;
   if(shootCooldown>0) shootCooldown-=rawDt;
-  if((isMov||isKey)&&shootCooldown<=0){try{fireWeapon();}catch(e){} shootCooldown=fcd;}
+  if((isMov||isKey)&&shootCooldown<=0){try{fireWeapon();}catch(e){console.warn('fire:',e);} shootCooldown=fcd;}
   if(invincible>0) invincible-=rawDt;
 
   // Oyuncu mermileri
@@ -253,14 +261,15 @@ function update(dt,rawDt){
     return b.y>-50&&b.y<canvas.height+20&&b.x>-30&&b.x<canvas.width+30;
   });
 
-  // Düşman mermileri
+  // Düşman mermileri – w/h BUG FIX: varsayılan değer ekle
   eBullets=eBullets.filter(b=>{
-    b.x+=(b.vx||0)*s;b.y+=b.vy*s;
-    if(b.y>canvas.height+20||b.y<-20)return false;
+    b.x+=(b.vx||0)*s;b.y+=(b.vy||200)*s;
+    if(b.y>canvas.height+20||b.y<-20||b.x<-20||b.x>canvas.width+20)return false;
+    const bw=b.w||8, bh=b.h||12;
     if(invincible<=0&&shieldActive&&circleRect(b.x,b.y,7,player.x,player.y,player.w*2,player.h*2)){
       b.vy=-Math.abs(b.vy);b.color='#00aaff';explode(b.x,b.y,'#00aaff',5);return true;
     }
-    if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,b.x,b.y,b.w||8,b.h||12)){
+    if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,b.x,b.y,bw,bh)){
       if(passiveDodgeCheck())return false;
       hitPlayer();return false;
     }
@@ -269,7 +278,7 @@ function update(dt,rawDt){
 
   // Asteroitler
   asteroidTimer-=rawDt;
-  if(asteroidTimer<=0){spawnAsteroid();asteroidTimer=Math.max(2200,7000-wave*250);}
+  if(asteroidTimer<=0){spawnAsteroid();asteroidTimer=Math.max(2000,7000-wave*240);}
   asteroids=asteroids.filter(a=>{
     a.x+=a.vx*s;a.y+=a.vy*s;a.rot+=a.rotSpeed*s;
     if(a.y>canvas.height+70)return false;
@@ -319,35 +328,47 @@ function update(dt,rawDt){
       }
     }
   }
-  // Cooldown: boss ölümünden bağımsız çalışır → yeni dalga garantisi
   if(wavePhase==='cooldown'){
     waveCooldown-=rawDt;
     if(waveCooldown<=0) startWave();
   }
 
-  // Boss
   if(bossActive&&boss) updateBoss(s,rawDt);
 
   // ── DÜŞMANLAR ────────────────────────────────────
   enemies=enemies.filter(e=>{
-    e.y+=e.dy*s;
-    // Temel zigzag (bazı tipler)
+    // Orbital kendi y'sini AI'da yönetir, diğerleri normal iner
+    if(e.shape!=='orbital'&&e.shape!=='kamikaze'){
+      e.y+=e.dy*s;
+    }
     if(e.zigzag) e.x+=e.dx*Math.sin(Date.now()/380+e.zigPhase)*1.3;
     if(e.hitFlash>0) e.hitFlash-=rawDt;
 
-    // Stealth görünürlük
+    // Stealth görünürlük – BUG FIX: başta görünür, sonra gizlenir
     if(e.shape==='stealth'){
       e.stealthTimer-=rawDt;
-      if(e.stealthTimer<=0){e.stealthVisible=!e.stealthVisible;e.stealthTimer=e.stealthVisible?1500:2500;}
+      if(e.stealthTimer<=0){
+        e.stealthVisible=!e.stealthVisible;
+        e.stealthTimer=e.stealthVisible?1500:2500;
+      }
     }
 
-    // AI davranışı
     aiUpdate(e,s,rawDt);
 
-    // Ateş
+    // Ateş – BUG FIX: try/catch ile
     if((e.stealthVisible||e.isElite)&&Math.random()<e.shootRate*ms&&player){
-      const ag=Math.atan2(player.y-e.y,player.x-e.x);
-      eBullets.push({x:e.x,y:e.y+e.h/2,vx:Math.cos(ag)*e.bulletSpeed*.45,vy:e.bulletSpeed,color:e.color});
+      try{
+        const ag=Math.atan2(player.y-e.y,player.x-e.x);
+        // Orbital: çevresel ateş
+        if(e.shape==='orbital'){
+          for(let i=0;i<3;i++){
+            const oa=ag+((i-1)*0.4);
+            eBullets.push({x:e.x,y:e.y,vx:Math.cos(oa)*e.bulletSpeed,vy:Math.sin(oa)*e.bulletSpeed,color:e.color,w:7,h:11});
+          }
+        } else {
+          eBullets.push({x:e.x,y:e.y+e.h/2,vx:Math.cos(ag)*e.bulletSpeed*.45,vy:e.bulletSpeed,color:e.color,w:7,h:11});
+        }
+      }catch(err){}
     }
 
     // Mermi çarpışma
@@ -355,15 +376,16 @@ function update(dt,rawDt){
     bullets=bullets.filter(b=>{
       if(!alive)return true;
       if(e.shape==='stealth'&&!e.stealthVisible&&e.hitFlash<=0)return true;
-      if(!rectsOverlap(e.x,e.y,e.w,e.h,b.x,b.y,b.w,b.h))return true;
+      if(!rectsOverlap(e.x,e.y,e.w,e.h,b.x,b.y,b.w||4,b.h||14))return true;
       if(e.ability==='reflect'&&e.hp>1){b.vy=Math.abs(b.vy)*.85;b.color='#ffff00';e.hitFlash=80;explode(b.x,b.y,'#ffff00',5);return true;}
       if(e.ability==='shield'&&e.shieldHp>0){e.shieldHp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,'#00ccff',5);return false;}
-      e.hp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,e.color,6);try{sfxEnemyHit();}catch(e2){}
+      e.hp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,e.color,6);
+      try{sfxEnemyHit();}catch(e2){}
       if(e.hp<=0){
         explode(e.x,e.y,e.color,28);try{sfxEnemyDie();}catch(e2){}
         if(e.ability==='bomb'){
           triggerShake(4);triggerFlash('#ff6600',.18);
-          for(let i=0;i<8;i++){const ag=i/8*Math.PI*2;eBullets.push({x:e.x,y:e.y,vx:Math.cos(ag)*180,vy:Math.sin(ag)*180,color:'#ff6600'});}
+          for(let i=0;i<8;i++){const ag=i/8*Math.PI*2;eBullets.push({x:e.x,y:e.y,vx:Math.cos(ag)*180,vy:Math.sin(ag)*180,color:'#ff6600',w:7,h:10});}
         }
         const pts=applyPassiveScore(Math.floor((e.score+wave*25)*comboMultiplier()));
         score+=pts;sessionKills++;waveKilled++;
@@ -373,15 +395,28 @@ function update(dt,rawDt){
           for(let si=0;si<2;si++)
             enemies.push({...ENEMY_TYPES[0],x:e.x+(si?32:-32),y:e.y,hp:2,maxHp:2,
               dy:e.dy+25,dx:0,zigPhase:0,hitFlash:0,isElite:false,score:60,
-              stealthTimer:0,stealthVisible:true,shootCd:0,sideTimer:0,sideDx:0});
+              stealthTimer:0,stealthVisible:true,shootCd:0,sideTimer:0,sideDx:0,
+              orbitAngle:0,orbitRadius:200,orbitDir:1});
         alive=false;
       }
       return false;
     });
     if(!alive)return false;
-    if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,e.x,e.y,e.w,e.h)){
-      hitPlayer();explode(e.x,e.y,e.color,18);resetCombo();return false;
+
+    // Oyuncuya çarpma
+    if(e.shape!=='kamikaze'){
+      if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,e.x,e.y,e.w,e.h)){
+        hitPlayer();explode(e.x,e.y,e.color,18);resetCombo();return false;
+      }
+    } else {
+      // Kamikaze: çarparsa kendisi de ölür
+      if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,e.x,e.y,e.w,e.h)){
+        hitPlayer();explode(e.x,e.y,e.color,30);triggerShake(4);return false;
+      }
     }
+
+    // Ekranı geçen düşmanları temizle
+    if(e.shape==='kamikaze'&&(e.y>canvas.height+80||e.x<-60||e.x>canvas.width+60)) return false;
     return e.y<canvas.height+70;
   });
 
@@ -406,6 +441,7 @@ function draw(){
   bg.addColorStop(0,'#000008');bg.addColorStop(.5,'#00000e');bg.addColorStop(1,'#000020');
   ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
   drawStars();drawNebula();
+
   for(const p of particles){
     ctx.save();ctx.globalAlpha=p.life*.9;ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=9;
     ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);ctx.fill();ctx.restore();
@@ -415,16 +451,49 @@ function draw(){
   for(const e of enemies)drawEnemy(e);
   if(bossActive&&boss)drawBoss(boss);
   for(const b of eBullets){
-    ctx.save();ctx.shadowColor=b.color;ctx.shadowBlur=12;ctx.fillStyle=b.color;
-    ctx.beginPath();ctx.arc(b.x,b.y,5.5,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.save();ctx.shadowColor=b.color;ctx.shadowBlur=14;
+    const bw=b.w||8, bh=b.h||12;
+    // Mermi şekli: yuvarlak köşeli dikdörtgen
+    const g=ctx.createLinearGradient(b.x,b.y-bh/2,b.x,b.y+bh/2);
+    g.addColorStop(0,'#fff');g.addColorStop(0.3,b.color);g.addColorStop(1,b.color+'44');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.roundRect(b.x-bw/2,b.y-bh/2,bw,bh,bw/2);ctx.fill();
+    ctx.restore();
   }
   for(const b of bullets)drawBullet(b);
   if(state==='playing'||state==='paused')drawPlayer(player);
+
+  // Silah süresi göstergesi
+  if(weaponTimer>0&&currentWeapon!=='standard'){
+    drawWeaponTimer();
+  }
+
+  // Flash efekti
   if(flashAmt>.02){ctx.save();ctx.globalAlpha=flashAmt;ctx.fillStyle=flashColor;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore();}
-  ctx.save();ctx.globalAlpha=.025;ctx.fillStyle=scanlinePattern||'transparent';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore();
+
+  // Scanlines
+  ctx.save();ctx.globalAlpha=.022;ctx.fillStyle=scanlinePattern||'transparent';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore();
+
+  // Vignette
   const vg=ctx.createRadialGradient(canvas.width/2,canvas.height/2,canvas.height*.3,canvas.width/2,canvas.height/2,canvas.height*.9);
-  vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.6)');
+  vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.58)');
   ctx.fillStyle=vg;ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+}
+
+// Silah süresi çubuğu
+function drawWeaponTimer(){
+  if(!weaponTimer)return;
+  const maxT=12000;
+  const pct=Math.min(weaponTimer/maxT,1);
+  const col=WEAPON_COLORS[currentWeapon]||'#00ffcc';
+  const bw=Math.min(canvas.width*.45,220);
+  const bx=canvas.width/2-bw/2;
+  const by=canvas.height-26;
+  ctx.save();
+  ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(bx,by,bw,5);
+  ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=8;
+  ctx.fillRect(bx,by,bw*pct,5);
   ctx.restore();
 }
 

@@ -20,25 +20,70 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
 .stat span{color:#fff;font-size:1.3em;}
 #livesBar{display:flex;gap:3px;justify-content:flex-end;}
 .heart{font-size:clamp(12px,3.2vw,17px);filter:drop-shadow(0 0 4px #ff4466);}
-#comboEl{position:absolute;top:64px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(14px,4.5vw,24px);color:#ffcc00;pointer-events:none;z-index:12;opacity:0;transition:opacity 0.3s;letter-spacing:2px;white-space:nowrap;}
-#weaponEl{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.5vw,12px);color:#00ffcc;pointer-events:none;z-index:12;letter-spacing:2px;}
-#waveIndicator{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(20px,6vw,34px);font-weight:900;color:#fff;text-shadow:0 0 20px #ff6600,0 0 40px #ff3300;letter-spacing:3px;pointer-events:none;z-index:15;opacity:0;transition:opacity 0.3s;text-align:center;}
-#dailyEl{position:absolute;bottom:30px;left:6px;right:6px;font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.8vw,9px);color:rgba(255,200,0,0.6);pointer-events:none;z-index:12;line-height:1.7;}
+#comboEl{
+  position:absolute;top:62px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-weight:900;
+  font-size:clamp(14px,4.5vw,24px);color:#ffcc00;
+  pointer-events:none;z-index:12;opacity:0;
+  transition:opacity 0.25s, transform 0.15s;
+  letter-spacing:2px;white-space:nowrap;
+}
+#weaponEl{
+  position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+  font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.5vw,12px);
+  color:#00ffcc;pointer-events:none;z-index:12;letter-spacing:2px;
+  text-shadow:0 0 8px currentColor;
+}
+#waveIndicator{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:clamp(20px,6vw,36px);font-weight:900;color:#fff;
+  text-shadow:0 0 20px #ff6600,0 0 40px #ff3300,0 0 80px #ff1100;
+  letter-spacing:3px;pointer-events:none;z-index:15;opacity:0;
+  transition:opacity 0.3s;text-align:center;
+}
+#dailyEl{
+  position:absolute;bottom:44px;left:6px;right:6px;
+  font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.8vw,9px);
+  color:rgba(255,200,0,0.55);pointer-events:none;z-index:12;line-height:1.7;
+}
 #slowmoFlash{position:absolute;inset:0;background:transparent;pointer-events:none;z-index:14;transition:background 0.12s;}
 
 /* ── JOYSTICK ───────────────────────────────────────── */
 #touchZone{position:absolute;inset:0;z-index:8;touch-action:none;}
-#joystickBase{position:absolute;width:110px;height:110px;border-radius:50%;border:2px solid rgba(0,255,204,0.28);background:rgba(0,255,204,0.04);pointer-events:none;display:none;transform:translate(-50%,-50%);z-index:9;}
-#joystickKnob{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#00ffcc,#007755);box-shadow:0 0 16px rgba(0,255,204,0.7);pointer-events:none;transform:translate(-50%,-50%);z-index:9;display:none;}
+#joystickBase{
+  position:absolute;width:110px;height:110px;border-radius:50%;
+  border:2px solid rgba(0,255,204,0.3);
+  background:radial-gradient(circle,rgba(0,255,204,0.06) 0%,transparent 70%);
+  pointer-events:none;display:none;transform:translate(-50%,-50%);z-index:9;
+}
+#joystickKnob{
+  position:absolute;width:44px;height:44px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#00ffcc,#007755);
+  box-shadow:0 0 18px rgba(0,255,204,0.8),0 0 36px rgba(0,255,204,0.3);
+  pointer-events:none;transform:translate(-50%,-50%);z-index:9;display:none;
+}
 
 /* ── PAUSE BUTONU ────────────────────────────────────── */
-#pauseBtn{z-index:50;background:rgba(0,0,0,0.4);border:1px solid rgba(0,255,204,0.5);color:#00ffcc;font-family:'Orbitron',monospace;font-size:11px;padding:5px 10px;cursor:pointer;letter-spacing:2px;display:none;border-radius:3px;touch-action:manipulation;pointer-events:all;}
+#pauseBtn{
+  z-index:50;background:rgba(0,0,0,0.4);
+  border:1px solid rgba(0,255,204,0.4);color:#00ffcc;
+  font-family:'Orbitron',monospace;font-size:11px;padding:5px 10px;
+  cursor:pointer;letter-spacing:2px;display:none;border-radius:3px;
+  touch-action:manipulation;pointer-events:all;
+  transition:background .15s, border-color .15s;
+}
+#pauseBtn:active{background:rgba(0,255,204,0.15);}
 #pauseBtn.show{display:block;}
 #ui{pointer-events:none;}
 #pauseBtn{pointer-events:all;}
 
 /* ── ORTAK OVERLAY ───────────────────────────────────── */
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;gap:14px;padding:20px 16px;overflow-y:auto;background:rgba(0,0,12,0.93);backdrop-filter:blur(5px);}
+.overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:30;gap:14px;
+  padding:20px 16px;overflow-y:auto;
+  background:rgba(0,0,12,0.93);backdrop-filter:blur(6px);
+}
 .overlay.hidden{display:none !important;}
 
 /* ── BUTON ───────────────────────────────────────────── */
@@ -48,22 +93,30 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
   letter-spacing:3px;cursor:pointer;text-transform:uppercase;
   border-radius:2px;touch-action:manipulation;
   -webkit-tap-highlight-color:rgba(0,255,204,0.2);
-  box-shadow:0 0 18px rgba(0,255,204,0.2);
+  box-shadow:0 0 18px rgba(0,255,204,0.15),inset 0 0 0 transparent;
+  transition:background .15s, box-shadow .15s;
 }
+.btn:hover{background:rgba(0,255,204,0.08);box-shadow:0 0 28px rgba(0,255,204,0.3);}
 .btn:active,.btn:focus{background:rgba(0,255,204,0.18);outline:none;}
 .btn:disabled{opacity:0.3;cursor:not-allowed;border-color:#444;color:#444;box-shadow:none;}
-.btn-sm{padding:10px 26px;font-size:clamp(11px,3vw,14px);letter-spacing:2px;border-color:rgba(0,255,204,0.45);color:rgba(0,255,204,0.7);}
+.btn-sm{padding:10px 26px;font-size:clamp(11px,3vw,14px);letter-spacing:2px;border-color:rgba(0,255,204,0.4);color:rgba(0,255,204,0.7);}
+.btn-danger{border-color:#ff4466;color:#ff4466;box-shadow:0 0 14px rgba(255,68,102,0.15);}
+.btn-danger:hover{background:rgba(255,68,102,0.08);}
 
 /* ── MENÜ ────────────────────────────────────────────── */
-.title-main{font-size:clamp(34px,11vw,62px);font-weight:900;color:#fff;letter-spacing:4px;text-align:center;text-shadow:0 0 24px #00ffcc,0 0 50px #0077ff;line-height:1;margin:6px 0;}
+.title-main{font-size:clamp(34px,11vw,64px);font-weight:900;color:#fff;letter-spacing:4px;text-align:center;text-shadow:0 0 24px #00ffcc,0 0 50px #0077ff,0 0 100px #0044aa;line-height:1;margin:6px 0;}
 .title-sub{font-size:clamp(9px,2.5vw,13px);color:#00ffcc;letter-spacing:7px;font-family:'Share Tech Mono',monospace;text-shadow:0 0 8px #00ffcc;}
 .score-display{font-family:'Share Tech Mono',monospace;font-size:clamp(12px,3.2vw,16px);color:#ffcc00;text-align:center;line-height:1.9;white-space:pre-line;}
 #scoreboardEl{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.3vw,12px);color:rgba(0,255,204,0.65);text-align:center;line-height:2;border-top:1px solid rgba(0,255,204,0.2);padding-top:8px;width:90%;white-space:pre-line;}
-.hint{font-family:'Share Tech Mono',monospace;font-size:clamp(8px,2vw,10px);color:rgba(0,255,204,0.38);text-align:center;letter-spacing:1px;line-height:2.1;}
+.hint{font-family:'Share Tech Mono',monospace;font-size:clamp(8px,2vw,10px);color:rgba(0,255,204,0.35);text-align:center;letter-spacing:1px;line-height:2.2;}
 .menu-row{display:flex;flex-direction:column;align-items:center;gap:10px;}
+
+/* ── VERSION TAG ─────────────────────────────────────── */
+.ver-tag{font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.6vw,9px);color:rgba(0,255,204,0.3);letter-spacing:2px;margin-top:-4px;}
 
 /* ── PAUSE ───────────────────────────────────────────── */
 .pause-title{font-family:'Share Tech Mono',monospace;font-size:clamp(11px,3vw,15px);color:#00ffcc;letter-spacing:6px;text-shadow:0 0 10px #00ffcc;}
+.pause-info{font-family:'Share Tech Mono',monospace;font-size:clamp(9px,2.2vw,12px);color:rgba(0,255,204,0.45);text-align:center;line-height:1.8;}
 #pauseMuteBtn{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2.5vw,13px);color:rgba(0,255,204,0.5);cursor:pointer;margin-top:6px;background:none;border:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;letter-spacing:2px;}
 
 /* ── HANGAR ──────────────────────────────────────────── */
@@ -75,15 +128,15 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
 .hangar-center{display:flex;flex-direction:column;align-items:center;gap:6px;width:28%;}
 .hangar-right{flex:1;display:flex;flex-direction:column;gap:4px;font-family:'Share Tech Mono',monospace;}
 .hangar-footer{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.ship-btn{padding:8px 10px;border:1px solid rgba(0,255,204,0.22);background:rgba(0,255,204,0.04);cursor:pointer;border-radius:3px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,255,204,0.1);}
-.ship-btn.sel{border-color:#00ffcc;background:rgba(0,255,204,0.13);box-shadow:0 0 10px rgba(0,255,204,0.25);}
+.ship-btn{padding:8px 10px;border:1px solid rgba(0,255,204,0.22);background:rgba(0,255,204,0.04);cursor:pointer;border-radius:3px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,255,204,0.1);transition:background .15s,border-color .15s;}
+.ship-btn.sel{border-color:#00ffcc;background:rgba(0,255,204,0.12);box-shadow:0 0 12px rgba(0,255,204,0.2);}
 .ship-btn.locked{opacity:0.4;cursor:not-allowed;}
 .ship-btn .sname{font-family:'Orbitron',monospace;font-size:clamp(9px,2.8vw,13px);color:#00ffcc;display:block;letter-spacing:2px;}
 .ship-btn .slock{font-family:'Share Tech Mono',monospace;font-size:clamp(7px,1.8vw,9px);color:rgba(255,120,0,0.7);display:block;margin-top:2px;}
 #hangarCanvas{border:1px solid rgba(0,255,204,0.18);border-radius:4px;background:rgba(0,0,20,0.6);}
 .skins{display:flex;gap:6px;margin-top:2px;}
-.skbtn{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.18);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
-.skbtn.active{border-color:#fff;transform:scale(1.25);}
+.skbtn{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.18);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .15s,border-color .15s;}
+.skbtn.active{border-color:#fff;transform:scale(1.3);}
 .hship-name{font-family:'Orbitron',monospace;font-size:clamp(13px,4vw,19px);font-weight:900;color:#fff;letter-spacing:3px;text-shadow:0 0 10px #00ffcc;}
 .hship-desc{font-size:clamp(7px,1.9vw,9px);color:rgba(200,200,255,0.65);line-height:1.5;margin-top:2px;}
 .hship-passive{font-size:clamp(8px,2.1vw,10px);color:#ffcc00;margin-top:4px;}
@@ -92,6 +145,10 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
 .hstat-row{display:flex;align-items:center;gap:6px;}
 .hstat-lbl{font-size:clamp(7px,1.9vw,9px);color:rgba(0,255,204,0.55);width:32px;}
 .hstat-bar{font-size:clamp(9px,2.2vw,12px);color:#00ffcc;letter-spacing:1px;text-shadow:0 0 5px #00ffcc;}
+
+/* ── PULSE ANİMASYONU ─────────────────────────────────── */
+@keyframes pulse{0%{opacity:1}50%{opacity:0.5}100%{opacity:1}}
+.pulse{animation:pulse 1.5s infinite;}
 </style>
 </head>
 <body>
@@ -120,20 +177,26 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
   <div id="menuOverlay" class="overlay">
     <div class="title-sub">— UZAY MİSYONU —</div>
     <div class="title-main">GEO<br>RIFT</div>
+    <div class="ver-tag">v8.0 · YENİ DÜŞMANLAR + BOSS AI</div>
     <div class="score-display" id="overlayScore" style="display:none"></div>
     <div id="scoreboardEl" style="display:none"></div>
     <div class="menu-row">
       <button class="btn" id="playBtn">BAŞLAT</button>
       <button class="btn btn-sm" id="hangarBtn">⚙ HANGAR</button>
     </div>
-    <div class="hint">📱 Sürükle=hareket&amp;ateş · Çift dok=DASH<br>🖥 WASD+Boşluk+Shift+P</div>
+    <div class="hint">
+      📱 Sürükle=hareket&amp;ateş · Çift dokun=DASH<br>
+      🖥 WASD+Boşluk+Shift+P/Esc<br>
+      <span style="color:rgba(255,200,0,0.5)">YENİ: Saçma silahı · Orbital+Kamikaze düşmanlar</span>
+    </div>
   </div>
 
   <!-- PAUSE -->
   <div id="pauseOverlay" class="overlay hidden">
     <div class="pause-title">— DURAKLATILDI —</div>
+    <div class="pause-info" id="pauseInfo"></div>
     <button class="btn" id="resumeBtn">DEVAM ET</button>
-    <button class="btn btn-sm" id="quitBtn">ANA MENÜ</button>
+    <button class="btn btn-sm btn-danger" id="quitBtn">ANA MENÜ</button>
     <button id="pauseMuteBtn">🔊 SES</button>
   </div>
 
