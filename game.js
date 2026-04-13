@@ -51,7 +51,8 @@ function circleRect(cx,cy,cr,rx,ry,rw,rh){
 
 // ── COMBO ────────────────────────────────────────────
 function addCombo(){
-  combo++;comboTimer=2800;updateComboUI();sfxCombo(combo);
+  combo++;comboTimer=2800;updateComboUI();
+  try{sfxCombo(combo);}catch(e){}
   if(combo>=8) checkDailyMission('combo8',1);
 }
 function resetCombo(){combo=0;comboTimer=0;updateComboUI();}
@@ -69,15 +70,19 @@ function comboMultiplier(){return 1+Math.floor(combo/2)*.5;}
 // ── EFEKTLER ────────────────────────────────────────
 function triggerShake(a){shakeAmt=Math.max(shakeAmt,Math.min(a,10));}
 function triggerSlowmo(d){
-  slowmo=d;slowFlash.style.background='rgba(255,255,255,.10)';
-  setTimeout(()=>slowFlash.style.background='transparent',150);
+  slowmo=d;
+  try{slowFlash.style.background='rgba(255,255,255,.10)';}catch(e){}
+  setTimeout(()=>{try{slowFlash.style.background='transparent';}catch(e){}},150);
 }
 function triggerFlash(col,a){flashColor=col;flashAmt=a;}
 
 // ── UI ───────────────────────────────────────────────
 function renderLives(){
   const bar=document.getElementById('livesBar');bar.innerHTML='';
-  for(let i=0;i<lives;i++){const h=document.createElement('span');h.className='heart';h.textContent='♥';bar.appendChild(h);}
+  for(let i=0;i<lives;i++){
+    const h=document.createElement('span');h.className='heart';h.textContent='♥';
+    bar.appendChild(h);
+  }
 }
 function showWaveText(t){
   const el=document.getElementById('waveIndicator');
@@ -85,27 +90,18 @@ function showWaveText(t){
   setTimeout(()=>el.style.opacity='0',2200);
 }
 
-// ── MUTE ────────────────────────────────────────────
-let muteIcon='🔊 SES';
-function doMute(){
-  initAudio();
-  const m=toggleMute();
-  muteIcon=m?'🔇 SESSİZ':'🔊 SES';
-  document.getElementById('pauseMuteBtn').textContent=muteIcon;
-}
-
 // ── PAUSE ────────────────────────────────────────────
 function pauseGame(){
   if(state!=='playing')return;
   state='paused';
   document.getElementById('pauseOverlay').classList.remove('hidden');
-  if(audioReady) musicGain.gain.setTargetAtTime(.08,AC.currentTime,.3);
+  try{if(audioReady) musicGain.gain.setTargetAtTime(.08,AC.currentTime,.3);}catch(e){}
 }
 function resumeGame(){
   if(state!=='paused')return;
   state='playing';
   document.getElementById('pauseOverlay').classList.add('hidden');
-  if(audioReady) musicGain.gain.setTargetAtTime(.38,AC.currentTime,.3);
+  try{if(audioReady) musicGain.gain.setTargetAtTime(.38,AC.currentTime,.3);}catch(e){}
   lastTime=performance.now();
   requestAnimationFrame(loop);
 }
@@ -115,62 +111,72 @@ function quitToMenu(){
   document.getElementById('menuOverlay').classList.remove('hidden');
   document.getElementById('pauseBtn').classList.remove('show');
   jBase.style.display='none';jKnob.style.display='none';
-  stopMusic();startMenuMusic();
+  try{stopMusic();startMenuMusic();}catch(e){}
   requestAnimationFrame(menuDraw);
 }
 
-// ── BUTON BAĞLANTILARI (DOM hazır, güvenli) ──────────
+let muteIcon='🔊 SES';
+function doMute(){
+  try{initAudio();const m=toggleMute();muteIcon=m?'🔇 SESSİZ':'🔊 SES';}catch(e){}
+  try{document.getElementById('pauseMuteBtn').textContent=muteIcon;}catch(e){}
+}
+
+// ── BUTON BAĞLANTILARI ────────────────────────────────
 document.getElementById('playBtn').addEventListener('click',()=>{
-  initAudio();sfxMenuClick();startGame();
+  try{initAudio();sfxMenuClick();}catch(e){} startGame();
 });
 document.getElementById('hangarBtn').addEventListener('click',()=>openHangar());
 document.getElementById('pauseBtn').addEventListener('click',()=>{
-  initAudio();sfxMenuClick();
+  try{initAudio();sfxMenuClick();}catch(e){}
   if(state==='playing') pauseGame(); else if(state==='paused') resumeGame();
 });
-document.getElementById('resumeBtn').addEventListener('click',()=>{sfxMenuClick();resumeGame();});
-document.getElementById('quitBtn').addEventListener('click',()=>{sfxMenuClick();quitToMenu();});
+document.getElementById('resumeBtn').addEventListener('click',()=>{ try{sfxMenuClick();}catch(e){} resumeGame(); });
+document.getElementById('quitBtn').addEventListener('click',()=>{ try{sfxMenuClick();}catch(e){} quitToMenu(); });
 document.getElementById('pauseMuteBtn').addEventListener('click',doMute);
 
 // ── DALGA ────────────────────────────────────────────
 function startWave(){
-  waveEnemyCount=6+wave*3;waveKilled=0;waveEnemiesLeft=waveEnemyCount;
-  waveSpawnInterval=Math.max(320,1600-wave*80);enemySpawnTimer=0;wavePhase='spawning';
-  showWaveText('DALGA '+wave);sfxWaveStart();
+  waveEnemyCount=6+wave*3; waveKilled=0; waveEnemiesLeft=waveEnemyCount;
+  waveSpawnInterval=Math.max(300,1600-wave*80);
+  enemySpawnTimer=0; wavePhase='spawning';
+  showWaveText('DALGA '+wave);
+  try{sfxWaveStart();}catch(e){}
 }
 
-// ── OYUNCU HASAR ─────────────────────────────────────
+// ── HASAR ────────────────────────────────────────────
 function hitPlayer(){
   if(invincible>0)return;
   lives--;renderLives();invincible=2000;resetCombo();
   explode(player.x,player.y,'#ff4466',22);triggerShake(7);
-  triggerFlash('#ff0000',.28);sfxPlayerHit();
+  triggerFlash('#ff0000',.28);
+  try{sfxPlayerHit();}catch(e){}
   if(lives<=0) gameOver();
 }
 function gameOver(){
-  saveScore(score,wave);state='menu';
-  stopMusic();startMenuMusic();
+  try{saveScore(score,wave);}catch(e){}
+  state='menu';
+  try{stopMusic();startMenuMusic();}catch(e){}
   document.getElementById('pauseBtn').classList.remove('show');
   document.getElementById('menuOverlay').classList.remove('hidden');
   const os=document.getElementById('overlayScore');
   os.style.display='block';
   os.textContent='SKOR: '+score.toLocaleString()+'\nDALGA: '+wave+'  |  KİLL: '+sessionKills;
   const sb=document.getElementById('scoreboardEl');
-  sb.style.display='block';sb.textContent=renderScoreboard();
+  sb.style.display='block'; sb.textContent=renderScoreboard();
   document.getElementById('playBtn').textContent='YENİDEN OYNA';
-  jBase.style.display='none';jKnob.style.display='none';
+  jBase.style.display='none'; jKnob.style.display='none';
   requestAnimationFrame(menuDraw);
 }
 
 // ── BAŞLAT ───────────────────────────────────────────
 function startGame(){
-  initAudio();
+  try{initAudio();}catch(e){}
   const ship=getSelectedShip();
   score=0;wave=1;lives=ship.lives;sessionKills=0;
   enemies=[];bullets=[];eBullets=[];particles=[];powerups=[];asteroids=[];
   player=createPlayer();shootCooldown=0;invincible=0;shieldActive=false;rapidFire=0;
   bossActive=false;boss=null;wavePhase='spawning';
-  combo=0;comboTimer=0;weaponTimer=0;asteroidTimer=6000;
+  combo=0;comboTimer=0;weaponTimer=0;asteroidTimer=7000;
   dashCooldown=0;dashActive=0;slowmo=0;shakeAmt=0;shipLevel=1;
   flashAmt=0;nebulaAngle=0;
   dailyRewardsGiven={};passiveWaveTracker=0;
@@ -183,7 +189,7 @@ function startGame(){
   document.getElementById('waveEl').textContent='1';
   state='playing';
   renderLives();initStars();startWave();renderDailyUI();
-  stopMusic();startGameMusic();
+  try{stopMusic();startGameMusic();}catch(e){}
   lastTime=performance.now();
   requestAnimationFrame(loop);
 }
@@ -191,7 +197,7 @@ function startGame(){
 // ── DÖNGÜLER ─────────────────────────────────────────
 function menuDraw(){
   if(state!=='menu')return;
-  updateStars(16);nebulaAngle+=.001;draw();
+  try{updateStars(16);nebulaAngle+=.001;draw();}catch(e){}
   requestAnimationFrame(menuDraw);
 }
 function loop(ts){
@@ -199,9 +205,9 @@ function loop(ts){
   const rawDt=Math.min(ts-lastTime,50);lastTime=ts;
   const dt=slowmo>0?rawDt*.35:rawDt;
   if(slowmo>0) slowmo-=rawDt;
-  try{ update(dt,rawDt); }catch(e){ console.error('update error:',e); }
-  try{ draw(); }catch(e){ console.error('draw error:',e); }
-  requestAnimationFrame(loop);
+  try{update(dt,rawDt);}catch(err){console.warn('update:',err);}
+  try{draw();}catch(err){console.warn('draw:',err);}
+  requestAnimationFrame(loop); // HER ZAMAN DEVAM ET
 }
 
 // ── UPDATE ───────────────────────────────────────────
@@ -233,10 +239,10 @@ function update(dt,rawDt){
   const isKey=keys['Space']||keys['KeyZ'];
   const fcd=currentWeapon==='laser'?70:rapidFire>0?80:200;
   if(shootCooldown>0) shootCooldown-=rawDt;
-  if((isMov||isKey)&&shootCooldown<=0){fireWeapon();shootCooldown=fcd;}
+  if((isMov||isKey)&&shootCooldown<=0){try{fireWeapon();}catch(e){} shootCooldown=fcd;}
   if(invincible>0) invincible-=rawDt;
 
-  // Player bullets
+  // Oyuncu mermileri
   bullets=bullets.filter(b=>{
     if(b.homing&&enemies.length>0){
       let cl=null,cd=9e9;
@@ -244,10 +250,10 @@ function update(dt,rawDt){
       if(cl){const a=Math.atan2(cl.y-b.y,cl.x-b.x);b.vx+=(Math.cos(a)*320-b.vx)*s*3;b.vy+=(Math.sin(a)*420-b.vy)*s;}
     }
     b.x+=(b.vx||0)*s;b.y+=b.vy*s;
-    return b.y>-50&&b.y<canvas.height+20&&b.x>-20&&b.x<canvas.width+20;
+    return b.y>-50&&b.y<canvas.height+20&&b.x>-30&&b.x<canvas.width+30;
   });
 
-  // Enemy bullets
+  // Düşman mermileri
   eBullets=eBullets.filter(b=>{
     b.x+=(b.vx||0)*s;b.y+=b.vy*s;
     if(b.y>canvas.height+20||b.y<-20)return false;
@@ -263,7 +269,7 @@ function update(dt,rawDt){
 
   // Asteroitler
   asteroidTimer-=rawDt;
-  if(asteroidTimer<=0){spawnAsteroid();asteroidTimer=Math.max(2000,7000-wave*250);}
+  if(asteroidTimer<=0){spawnAsteroid();asteroidTimer=Math.max(2200,7000-wave*250);}
   asteroids=asteroids.filter(a=>{
     a.x+=a.vx*s;a.y+=a.vy*s;a.rot+=a.rotSpeed*s;
     if(a.y>canvas.height+70)return false;
@@ -273,7 +279,8 @@ function update(dt,rawDt){
       if(a.hp<=0){
         explode(a.x,a.y,'#aa8855',18);score+=200+wave*30;
         if(a.r>14)for(let i=0;i<2;i++)
-          asteroids.push({x:a.x+(i?1:-1)*20,y:a.y,r:a.r*.55,hp:1,maxHp:1,vy:a.vy+35,vx:(Math.random()-.5)*90,rot:0,rotSpeed:(Math.random()-.5)*3,
+          asteroids.push({x:a.x+(i?1:-1)*20,y:a.y,r:a.r*.55,hp:1,maxHp:1,vy:a.vy+35,
+            vx:(Math.random()-.5)*90,rot:0,rotSpeed:(Math.random()-.5)*3,
             points:Array.from({length:7},(_,j)=>{const ag=j/7*Math.PI*2;return{a:ag,r:(a.r*.55)*(.7+Math.random()*.5)};})});
         return false;
       }
@@ -285,7 +292,7 @@ function update(dt,rawDt){
     return a.hp>0;
   });
 
-  // Dalga makinesi
+  // ── DALGA MAKİNESİ ────────────────────────────────
   if(!bossActive){
     if(wavePhase==='spawning'){
       if(waveEnemiesLeft>0){
@@ -301,35 +308,49 @@ function update(dt,rawDt){
       } else {wavePhase='waiting';}
     } else if(wavePhase==='waiting'){
       if(enemies.length===0){
-        if(wave%3===0){spawnBoss();wavePhase='boss';}
-        else{
-          wave++;document.getElementById('waveEl').textContent=wave;
-          waveCooldown=1600;wavePhase='cooldown';
+        if(wave%3===0){
+          spawnBoss();wavePhase='boss';
+        } else {
+          wave++;
+          document.getElementById('waveEl').textContent=wave;
+          waveCooldown=1500;wavePhase='cooldown';
           checkDailyMission('wave5',1);onWavePassive();
         }
       }
     }
   }
-  // cooldown boss'tan bağımsız
-  if(wavePhase==='cooldown'){waveCooldown-=rawDt;if(waveCooldown<=0)startWave();}
+  // Cooldown: boss ölümünden bağımsız çalışır → yeni dalga garantisi
+  if(wavePhase==='cooldown'){
+    waveCooldown-=rawDt;
+    if(waveCooldown<=0) startWave();
+  }
 
   // Boss
   if(bossActive&&boss) updateBoss(s,rawDt);
 
-  // Düşmanlar
+  // ── DÜŞMANLAR ────────────────────────────────────
   enemies=enemies.filter(e=>{
     e.y+=e.dy*s;
-    if(e.zigzag)e.x+=e.dx*Math.sin(Date.now()/380+e.zigPhase)*1.4;
-    if(e.hitFlash>0)e.hitFlash-=rawDt;
-    e.x=Math.max(e.w/2,Math.min(canvas.width-e.w/2,e.x));
+    // Temel zigzag (bazı tipler)
+    if(e.zigzag) e.x+=e.dx*Math.sin(Date.now()/380+e.zigPhase)*1.3;
+    if(e.hitFlash>0) e.hitFlash-=rawDt;
+
+    // Stealth görünürlük
     if(e.shape==='stealth'){
       e.stealthTimer-=rawDt;
       if(e.stealthTimer<=0){e.stealthVisible=!e.stealthVisible;e.stealthTimer=e.stealthVisible?1500:2500;}
     }
+
+    // AI davranışı
+    aiUpdate(e,s,rawDt);
+
+    // Ateş
     if((e.stealthVisible||e.isElite)&&Math.random()<e.shootRate*ms&&player){
       const ag=Math.atan2(player.y-e.y,player.x-e.x);
       eBullets.push({x:e.x,y:e.y+e.h/2,vx:Math.cos(ag)*e.bulletSpeed*.45,vy:e.bulletSpeed,color:e.color});
     }
+
+    // Mermi çarpışma
     let alive=true;
     bullets=bullets.filter(b=>{
       if(!alive)return true;
@@ -337,9 +358,9 @@ function update(dt,rawDt){
       if(!rectsOverlap(e.x,e.y,e.w,e.h,b.x,b.y,b.w,b.h))return true;
       if(e.ability==='reflect'&&e.hp>1){b.vy=Math.abs(b.vy)*.85;b.color='#ffff00';e.hitFlash=80;explode(b.x,b.y,'#ffff00',5);return true;}
       if(e.ability==='shield'&&e.shieldHp>0){e.shieldHp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,'#00ccff',5);return false;}
-      e.hp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,e.color,6);sfxEnemyHit();
+      e.hp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,e.color,6);try{sfxEnemyHit();}catch(e2){}
       if(e.hp<=0){
-        explode(e.x,e.y,e.color,28);sfxEnemyDie();
+        explode(e.x,e.y,e.color,28);try{sfxEnemyDie();}catch(e2){}
         if(e.ability==='bomb'){
           triggerShake(4);triggerFlash('#ff6600',.18);
           for(let i=0;i<8;i++){const ag=i/8*Math.PI*2;eBullets.push({x:e.x,y:e.y,vx:Math.cos(ag)*180,vy:Math.sin(ag)*180,color:'#ff6600'});}
@@ -350,7 +371,9 @@ function update(dt,rawDt){
         addCombo();spawnPowerup(e.x,e.y);
         if(e.ability==='split')
           for(let si=0;si<2;si++)
-            enemies.push({...ENEMY_TYPES[0],x:e.x+(si?32:-32),y:e.y,hp:2,maxHp:2,dy:e.dy+25,dx:0,zigPhase:0,hitFlash:0,isElite:false,score:60,stealthTimer:0,stealthVisible:true,shootCd:0});
+            enemies.push({...ENEMY_TYPES[0],x:e.x+(si?32:-32),y:e.y,hp:2,maxHp:2,
+              dy:e.dy+25,dx:0,zigPhase:0,hitFlash:0,isElite:false,score:60,
+              stealthTimer:0,stealthVisible:true,shootCd:0,sideTimer:0,sideDx:0});
         alive=false;
       }
       return false;
@@ -369,8 +392,10 @@ function update(dt,rawDt){
     return p.y<canvas.height+35;
   });
   particles=particles.filter(p=>{p.x+=p.vx*s;p.y+=p.vy*s;p.vx*=.94;p.vy*=.94;p.life-=p.decay*s;return p.life>0;});
+
   document.getElementById('scoreEl').textContent=score.toLocaleString();
-  renderDailyUI();updateShipLevel();
+  renderDailyUI();
+  updateShipLevel();
 }
 
 // ── DRAW ─────────────────────────────────────────────
@@ -419,8 +444,9 @@ function drawNebula(){
 // ── BAŞLANGIÇ ────────────────────────────────────────
 resize();
 initStars();
-// Mobil autoplay: ilk dokunuşta müzik başla
 ['click','touchstart'].forEach(ev=>
-  document.body.addEventListener(ev,()=>{initAudio();if(musicPlaying===null)startMenuMusic();},{once:true,passive:true})
+  document.body.addEventListener(ev,()=>{
+    try{initAudio();if(musicPlaying===null)startMenuMusic();}catch(e){}
+  },{once:true,passive:true})
 );
 requestAnimationFrame(menuDraw);
