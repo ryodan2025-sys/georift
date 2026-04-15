@@ -431,7 +431,7 @@ function updateBoss(s,rawDt){
     explode(b.x,b.y,boss.color,6);
     try{sfxBossHit();}catch(e){}
     if(boss.hp<=0){
-      explode(boss.x,boss.y,boss.color,50);explode(boss.x-boss.w*.3,boss.y+boss.h*.2,'#ffffff',25);
+      explode(boss.x,boss.y,boss.color,18);explode(boss.x-boss.w*.3,boss.y+boss.h*.2,"#ffffff",12);
       explode(boss.x+boss.w*.3,boss.y-boss.h*.2,'#ffcc00',20);explode(boss.x,boss.y+boss.h*.4,'#ff0044',20);
       try{sfxBossDie();}catch(e){}
       triggerShake(8);triggerFlash(boss.color,.45);

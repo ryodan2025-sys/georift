@@ -52,6 +52,7 @@ function circleRect(cx,cy,cr,rx,ry,rw,rh){
 function addCombo(){
   combo++;comboTimer=2800;updateComboUI();
   try{sfxCombo(combo);}catch(e){}
+  if(combo>=5) checkDailyMission('combo5',1);
   if(combo>=8) checkDailyMission('combo8',1);
 }
 function resetCombo(){combo=0;comboTimer=0;updateComboUI();}
@@ -155,7 +156,7 @@ function startWave(){
 function hitPlayer(){
   if(invincible>0)return;
   lives--;renderLives();invincible=2200;resetCombo();
-  explode(player.x,player.y,'#ff4466',22);triggerShake(7);
+  explode(player.x,player.y,"#ff4466",14);triggerShake(7);
   triggerFlash('#ff0000',.28);
   try{sfxPlayerHit();}catch(e){}
   if(lives<=0) gameOver();
@@ -323,7 +324,10 @@ function update(dt,rawDt){
           wave++;
           document.getElementById('waveEl').textContent=wave;
           waveCooldown=1500;wavePhase='cooldown';
-          checkDailyMission('wave5',1);onWavePassive();
+          checkDailyMission('wave3',1);checkDailyMission('wave5',1);checkDailyMission('wave8',1);
+          onWavePassive();
+          // noboss: boss olmadan dalga geçince say
+          if(!bossActive) checkDailyMission('noboss',1);
         }
       }
     }
@@ -382,14 +386,16 @@ function update(dt,rawDt){
       e.hp-=b.dmg;e.hitFlash=80;explode(b.x,b.y,e.color,6);
       try{sfxEnemyHit();}catch(e2){}
       if(e.hp<=0){
-        explode(e.x,e.y,e.color,28);try{sfxEnemyDie();}catch(e2){}
+        explode(e.x,e.y,e.color,14);try{sfxEnemyDie();}catch(e2){}
         if(e.ability==='bomb'){
           triggerShake(4);triggerFlash('#ff6600',.18);
           for(let i=0;i<8;i++){const ag=i/8*Math.PI*2;eBullets.push({x:e.x,y:e.y,vx:Math.cos(ag)*180,vy:Math.sin(ag)*180,color:'#ff6600',w:7,h:10});}
         }
         const pts=applyPassiveScore(Math.floor((e.score+wave*25)*comboMultiplier()));
         score+=pts;sessionKills++;waveKilled++;
-        checkDailyMission('kill100',1);checkDailyMission('score5k',pts);
+        checkDailyMission('kill30',1);checkDailyMission('kill50',1);checkDailyMission('kill100',1);checkDailyMission('kill200',1);
+        checkDailyMission('score2k',pts);checkDailyMission('score5k',pts);checkDailyMission('score15k',pts);
+        if(combo>=3) checkDailyMission('combo3x',1);
         addCombo();spawnPowerup(e.x,e.y);
         if(e.ability==='split')
           for(let si=0;si<2;si++)
@@ -406,12 +412,12 @@ function update(dt,rawDt){
     // Oyuncuya çarpma
     if(e.shape!=='kamikaze'){
       if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,e.x,e.y,e.w,e.h)){
-        hitPlayer();explode(e.x,e.y,e.color,18);resetCombo();return false;
+        hitPlayer();explode(e.x,e.y,e.color,12);resetCombo();return false;
       }
     } else {
       // Kamikaze: çarparsa kendisi de ölür
       if(invincible<=0&&!shieldActive&&rectsOverlap(player.x,player.y,player.w,player.h,e.x,e.y,e.w,e.h)){
-        hitPlayer();explode(e.x,e.y,e.color,30);triggerShake(4);return false;
+        hitPlayer();explode(e.x,e.y,e.color,15);triggerShake(4);return false;
       }
     }
 
@@ -426,7 +432,8 @@ function update(dt,rawDt){
     if(rectsOverlap(player.x,player.y,player.w*1.5,player.h*1.5,p.x,p.y,p.r*2,p.r*2)){applyPowerup(p);return false;}
     return p.y<canvas.height+35;
   });
-  particles=particles.filter(p=>{p.x+=p.vx*s;p.y+=p.vy*s;p.vx*=.94;p.vy*=.94;p.life-=p.decay*s;return p.life>0;});
+  updateParticles(s);  // havuz tabanlı güncelleme (FPS fix)
+  updateSurviveMission(rawDt); // survive5 görevi
 
   document.getElementById('scoreEl').textContent=score.toLocaleString();
   renderDailyUI();
@@ -442,9 +449,16 @@ function draw(){
   ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
   drawStars();drawNebula();
 
-  for(const p of particles){
-    ctx.save();ctx.globalAlpha=p.life*.9;ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=9;
-    ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);ctx.fill();ctx.restore();
+  // Partiküller – havuzdan çiz (sadece aktif olanlar)
+  for(let pi=0; pi<_pool.length; pi++){
+    const p=_pool[pi];
+    if(!p._active) continue;
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,p.life)*0.88;
+    ctx.fillStyle=p.color;
+    ctx.shadowColor=p.color;ctx.shadowBlur=7;
+    ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.1,p.r*p.life),0,Math.PI*2);ctx.fill();
+    ctx.restore();
   }
   for(const a of asteroids)drawAsteroid(a);
   drawPowerups();
@@ -499,14 +513,27 @@ function drawWeaponTimer(){
 
 function drawNebula(){
   ctx.save();
-  const r=Math.min(canvas.width,canvas.height)*.6;
-  const px=canvas.width*.65+Math.cos(nebulaAngle)*25,py=canvas.height*.3+Math.sin(nebulaAngle*.7)*18;
-  const n1=ctx.createRadialGradient(px,py,10,px,py,r);
-  n1.addColorStop(0,'rgba(100,0,180,.07)');n1.addColorStop(1,'transparent');
+  // Katman 1: büyük mor nebula (sağ üst)
+  const r1=Math.min(canvas.width,canvas.height)*.75;
+  const px1=canvas.width*.7+Math.cos(nebulaAngle)*20,py1=canvas.height*.25+Math.sin(nebulaAngle*.6)*15;
+  const n1=ctx.createRadialGradient(px1,py1,10,px1,py1,r1);
+  n1.addColorStop(0,'rgba(80,0,160,.09)');n1.addColorStop(0.5,'rgba(40,0,80,.04)');n1.addColorStop(1,'transparent');
   ctx.fillStyle=n1;ctx.fillRect(0,0,canvas.width,canvas.height);
-  const n2=ctx.createRadialGradient(canvas.width*.2,canvas.height*.72,5,canvas.width*.2,canvas.height*.72,r*.65);
-  n2.addColorStop(0,'rgba(0,140,110,.05)');n2.addColorStop(1,'transparent');
+
+  // Katman 2: mavi-yeşil (sol alt)
+  const r2=Math.min(canvas.width,canvas.height)*.65;
+  const px2=canvas.width*.18+Math.cos(nebulaAngle*1.3)*14,py2=canvas.height*.78+Math.sin(nebulaAngle)*12;
+  const n2=ctx.createRadialGradient(px2,py2,5,px2,py2,r2);
+  n2.addColorStop(0,'rgba(0,100,80,.07)');n2.addColorStop(0.6,'rgba(0,50,40,.03)');n2.addColorStop(1,'transparent');
   ctx.fillStyle=n2;ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Katman 3: kırmızımsı (orta) – dalga ile yavaş salınım
+  const r3=Math.min(canvas.width,canvas.height)*.45;
+  const px3=canvas.width*.5+Math.cos(nebulaAngle*.5)*30,py3=canvas.height*.55+Math.sin(nebulaAngle*.8)*20;
+  const n3=ctx.createRadialGradient(px3,py3,5,px3,py3,r3);
+  n3.addColorStop(0,'rgba(120,0,40,.04)');n3.addColorStop(1,'transparent');
+  ctx.fillStyle=n3;ctx.fillRect(0,0,canvas.width,canvas.height);
+
   ctx.restore();
 }
 
